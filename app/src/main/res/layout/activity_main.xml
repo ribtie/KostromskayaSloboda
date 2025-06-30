@@ -1,16 +1,180 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent">
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+android:layout_width="match_parent"
+android:layout_height="match_parent"
+android:paddingTop="20dp"
+android:background="#ADDFA8">
 
-        <com.example.kostromskayasloboda.MapView
-            android:id="@+id/mapView"
+<LinearLayout
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:name="Header"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="10dp"
+        android:layout_weight="1"
+        android:orientation="vertical">
+
+        <TextView
+            style="@style/TextBlocks"
             android:layout_width="match_parent"
-            android:layout_height="438dp" />
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="50dp"
+            android:layout_marginRight="50dp"
+            android:layout_marginTop="20dp"
+            android:text="ПРИВЕТ!"
+            android:textSize="34sp">
+        </TextView>
+
+        <TextView
+            style="@style/TextBlocks"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Найди пропущенные дома и выбери правильный вариант!"
+            android:textSize="20sp"
+            android:layout_marginTop="20dp">
+        </TextView>
+    </LinearLayout>
+
+    <LinearLayout
+        android:name="Body"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="10"
+        android:orientation="vertical"
+        android:layout_marginTop="20dp">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            style="@style/BackgroundBlocks"
+            android:clipToPadding="false">
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Внимательно осмотри территорию музея"
+                    android:textSize="18sp"
+                    style="@style/WhiteTextBlocksWithoutBackground"/>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="16sp"
+                    android:text="Обрати внимание на архитектурные особенности каждого дома. Ищи различия и сходства."
+                    style="@style/OrangeTextBlocksWithoutBackground"/>
+            </LinearLayout>
+
+            <ImageView
+                android:layout_width="100dp"
+                android:layout_height="100dp"
+                android:src="@drawable/museum_map"
+                android:layout_marginStart="10dp"
+                android:scaleType="centerCrop"
+                android:clipToOutline="true" />
+        </LinearLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            style="@style/BackgroundBlocks"
+            android:layout_marginTop="10dp"
+            android:clipToPadding="false">
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Используй карту музея"
+                    android:textSize="18sp"
+                    style="@style/WhiteTextBlocksWithoutBackground"/>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="16sp"
+                    android:text="На карте отмечены все дома. Сравни их расположение с тем, что видишь вокруг."
+                    style="@style/OrangeTextBlocksWithoutBackground"/>
+            </LinearLayout>
+
+            <ImageView
+                android:layout_width="100dp"
+                android:layout_height="100dp"
+                android:src="@drawable/museum_map"
+                android:layout_marginStart="10dp"
+                android:scaleType="centerCrop"
+                android:clipToOutline="true" />
+        </LinearLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            style="@style/BackgroundBlocks"
+            android:layout_marginTop="10dp"
+            android:clipToPadding="false">
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Не торопись"
+                    android:textSize="18sp"
+                    style="@style/WhiteTextBlocksWithoutBackground"/>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="16sp"
+                    android:text="У тебя есть время подумать. Не спеши с выбором, чтобы не допустить ошибку."
+                    style="@style/OrangeTextBlocksWithoutBackground"/>
+            </LinearLayout>
+
+            <ImageView
+                android:layout_width="100dp"
+                android:layout_height="100dp"
+                android:src="@drawable/museum_map"
+                android:layout_marginStart="10dp"
+                android:scaleType="centerCrop"
+                android:clipToOutline="true" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginTop="10dp">
+
+            <androidx.appcompat.widget.AppCompatButton
+                style="@style/GameButtonStyle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="50dp"
+                android:layout_marginTop="16dp"
+                android:layout_marginRight="50dp"
+                android:onClick="onClickStart"
+                android:text="Начать игру" />
+        </LinearLayout>
     </LinearLayout>
 
 
-</FrameLayout>
+</LinearLayout>
+</ScrollView>

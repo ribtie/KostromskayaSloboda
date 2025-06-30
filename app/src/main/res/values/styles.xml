@@ -1,0 +1,42 @@
+<resources>
+    <style name="TextBlocks">
+        <item name="android:background">@drawable/rounded_background</item>
+        <item name="android:textColor">#FFFFFF</item>
+        <item name="android:padding">5dp</item>
+        <item name="android:fontFamily">@font/montserrat_bold</item>
+        <item name="android:gravity">center</item>
+
+    </style>
+
+    <style name="WhiteTextBlocksWithoutBackground">
+        <item name="android:textColor">#FFFFFF</item>
+        <item name="android:padding">5dp</item>
+        <item name="android:fontFamily">@font/montserrat_bold</item>
+        <item name="android:textSize">20sp</item>
+    </style>
+    <style name="OrangeTextBlocksWithoutBackground">
+        <item name="android:textColor">#DB6600</item>
+        <item name="android:padding">5dp</item>
+        <item name="android:fontFamily">@font/montserrat_bold</item>
+        <item name="android:textSize">20sp</item>
+    </style>
+
+    <style name="BackgroundBlocks">
+        <item name="android:background">@drawable/rounded_background</item>
+        <item name="android:textColor">#FFFFFF</item>
+        <item name="android:fontFamily">@font/montserrat_bold</item>
+        <item name="android:gravity">center</item>
+        <item name="android:padding">5dp</item>
+
+    </style>
+
+        <style name="GameButtonStyle" parent="Widget.AppCompat.Button">
+            <item name="android:background">@drawable/button_background</item>
+            <item name="android:textColor">#FFFFFF</item>
+            <item name="android:fontFamily">@font/montserrat_bold</item>
+            <item name="android:textSize">16sp</item>
+        </style>
+
+
+
+</resources>

@@ -14,9 +14,17 @@ public class MapView extends View {
     private float userY = -1;
     private Paint userPaint;
 
+    private float previousX = -1;
+    private float previousY = -1;
+    private Bitmap userMarker;
+    private float animatedX = -1;
+    private float animatedY = -1;
+
     public MapView(Context context, AttributeSet attrs) {
         super(context, attrs);
         mapBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.museum_map);
+        userMarker = BitmapFactory.decodeResource(getResources(), R.drawable.user_marker);
+
         userPaint = new Paint();
         userPaint.setColor(Color.BLUE);
         userPaint.setStyle(Paint.Style.FILL);
@@ -24,11 +32,52 @@ public class MapView extends View {
 
 
     public void updateUserPosition(double lat, double lon) {
-        float[] xy = gpsToPixel(lat, lon);
-        userX = xy[0];
-        userY = xy[1];
-        invalidate();
-        Log.d("MAP", "Pixel: x=" + userX + ", y=" + userY);
+            float[] xy = gpsToPixel(lat, lon);
+            float newX = xy[0];
+            float newY = xy[1];
+
+            // Если это первый запуск — сразу установить
+            if (userX == -1 && userY == -1) {
+                userX = newX;
+                userY = newY;
+                animatedX = newX;
+                animatedY = newY;
+                invalidate();
+                return;
+            }
+
+
+            final float startX = userX;
+            final float startY = userY;
+            final float endX = newX;
+            final float endY = newY;
+            previousX = userX;
+            previousY = userY;
+            final long duration = 300;
+            final long startTime = System.currentTimeMillis();
+
+            post(new Runnable() {
+                @Override
+                public void run() {
+                    long elapsed = System.currentTimeMillis() - startTime;
+                    float t = Math.min(1f, (float) elapsed / duration);
+
+                    // Линейная интерполяция
+                    animatedX = startX + (endX - startX) * t;
+                    animatedY = startY + (endY - startY) * t;
+
+                    invalidate();
+
+                    if (t < 1f) {
+                        postDelayed(this, 16);
+                    } else {
+                        userX = endX;
+                        userY = endY;
+                    }
+                }
+            });
+
+
     }
 
     private float[] gpsToPixel(double lat, double lon) {
@@ -61,10 +110,23 @@ public class MapView extends View {
         canvas.drawBitmap(scaledMap, 0, 0, null);
 
         if (userX >= 0 && userY >= 0) {
-            float scaleX = (float) getWidth() / mapBitmap.getWidth();
-            float scaleY = (float) getHeight() / mapBitmap.getHeight();
+            float scaleX = (float) getWidth() / (mapBitmap.getWidth());
+            float scaleY = (float) getHeight() / (mapBitmap.getHeight());
+            float drawX = animatedX * scaleX - userMarker.getWidth() / 2f;
+            float drawY = animatedY * scaleY - userMarker.getHeight() / 2f;
+            // 1. Вычисляем угол направления (в градусах)
+            float dx = animatedX - previousX;
+            float dy = animatedY - previousY;
+            float angle = (float) Math.toDegrees(Math.atan2(dy, dx));
 
-            canvas.drawCircle(userX * scaleX, userY * scaleY, 20, userPaint);
+            // 2. Создаём матрицу поворота и трансляции
+            Matrix matrix = new Matrix();
+            matrix.postTranslate(-userMarker.getWidth() / 2f, -userMarker.getHeight() / 2f); // Центрируем
+            matrix.postRotate(angle); // Поворачиваем
+            matrix.postTranslate(drawX, drawY); // Перемещаем в нужную позицию
+
+            // 3. Рисуем повернутый маркер
+            canvas.drawBitmap(userMarker, matrix, null);
 
         }
     }
