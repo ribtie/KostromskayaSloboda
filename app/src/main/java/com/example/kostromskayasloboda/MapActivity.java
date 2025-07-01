@@ -20,7 +20,7 @@ public class MapActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.map_activity);
         mapView = findViewById(R.id.mapView);
-
+        mapView.setActivity(this);
         locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
 
         if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION)

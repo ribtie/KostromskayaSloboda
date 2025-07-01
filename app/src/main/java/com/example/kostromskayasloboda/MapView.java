@@ -6,6 +6,9 @@ import android.graphics.*;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
+import android.widget.Toast;
+
+import androidx.appcompat.app.AppCompatActivity;
 
 public class MapView extends View {
 
@@ -13,24 +16,53 @@ public class MapView extends View {
     private float userX = -1;
     private float userY = -1;
     private Paint userPaint;
-
-    private float previousX = -1;
-    private float previousY = -1;
     private Bitmap userMarker;
     private float animatedX = -1;
     private float animatedY = -1;
 
+    private static final int PUZZLE_ROWS = 3;
+    private static final int PUZZLE_COLS = 3;
+    private Bitmap[] puzzlePieces = new Bitmap[PUZZLE_ROWS * PUZZLE_COLS];
+    private int missingPieceIndex = 3; //
+    public static Boolean showMissingPiece = false; // флаг, появился ли пропущенный кусок
+    private int pieceWidth, pieceHeight;
+
+
     public MapView(Context context, AttributeSet attrs) {
         super(context, attrs);
+
         mapBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.museum_map);
         userMarker = BitmapFactory.decodeResource(getResources(), R.drawable.user_marker);
+        splitMapIntoPieces();
 
-        userPaint = new Paint();
-        userPaint.setColor(Color.BLUE);
-        userPaint.setStyle(Paint.Style.FILL);
+    }
+    private void splitMapIntoPieces() {
+        pieceWidth = mapBitmap.getWidth() / PUZZLE_COLS;
+        pieceHeight = mapBitmap.getHeight() / PUZZLE_ROWS;
+
+        for (int row = 0; row < PUZZLE_ROWS; row++) {
+            for (int col = 0; col < PUZZLE_COLS; col++) {
+                int index = row * PUZZLE_COLS + col;
+                if (index == missingPieceIndex && !showMissingPiece) {
+                    puzzlePieces[index] = null; // пустой кусочек
+                    continue;
+                }
+                puzzlePieces[index] = Bitmap.createBitmap(
+                        mapBitmap,
+                        col * pieceWidth,
+                        row * pieceHeight,
+                        pieceWidth,
+                        pieceHeight
+                );
+            }
+        }
     }
 
+    private AppCompatActivity activity;
 
+    public void setActivity(AppCompatActivity activity) {
+        this.activity = activity;
+    }
     public void updateUserPosition(double lat, double lon) {
             float[] xy = gpsToPixel(lat, lon);
             float newX = xy[0];
@@ -47,12 +79,11 @@ public class MapView extends View {
             }
 
 
+
             final float startX = userX;
             final float startY = userY;
             final float endX = newX;
             final float endY = newY;
-            previousX = userX;
-            previousY = userY;
             final long duration = 300;
             final long startTime = System.currentTimeMillis();
 
@@ -73,11 +104,41 @@ public class MapView extends View {
                     } else {
                         userX = endX;
                         userY = endY;
+                        checkInPosition(userX, userY);
                     }
+
                 }
+
+
             });
+        Log.d("ТРИППИ ТРОПА",userX + " UPDATE " + userY);
 
+    }
 
+    private void checkInPosition(float userX, float userY) {
+
+        ///if (showMissingPiece) return; // уже показали
+
+        Boolean school = false;
+        if(school==false){ /// дом который ищем, координаты, отдельные методы
+            float[] schoolXy = gpsToPixel(57.737786, 41.010429);
+            float newX = schoolXy[0];
+            float newY = schoolXy[1];
+            Log.d("ТРИППИ ТРОПА",Math.abs(newX-userX) + " " + Math.abs(newY-userY)+ " " + userX + " " + userY + " " + newX + " " + newY);
+            if(Math.abs(newX-userX)<=100 && Math.abs(newY-userY)<=100) {
+                 // перерисовать с новым кусочком
+                Toast.makeText(this.getContext(), showMissingPiece + " ", Toast.LENGTH_SHORT).show();
+                Church1.onCorrectAnswerGlobal = () -> {
+                    MapView.showMissingPiece = true;
+                    splitMapIntoPieces();
+                    invalidate();
+                    Toast.makeText(activity, showMissingPiece + " ПОСЛЕ ВЕРНОГО", Toast.LENGTH_SHORT).show();
+                };
+                Church1 church1 = new Church1();
+                church1.show(activity.getSupportFragmentManager(), "Church");
+
+            }
+        }
     }
 
     private float[] gpsToPixel(double lat, double lon) {
@@ -95,41 +156,51 @@ public class MapView extends View {
 
         return new float[]{x, y};
     }
+    private float[] gpsToPixel(double[] latLon) {
+        return gpsToPixel(latLon[0], latLon[1]);
+    }
 
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
 
-        Bitmap scaledMap = Bitmap.createScaledBitmap(
-                mapBitmap,
-                getWidth(),
-                getHeight(),
-                true
-        );
+        float scaleX = (float) getWidth() / mapBitmap.getWidth();
+        float scaleY = (float) getHeight() / mapBitmap.getHeight();
 
-        canvas.drawBitmap(scaledMap, 0, 0, null);
+        // Рисуем кусочки
+        for (int i = 0; i < puzzlePieces.length; i++) {
+            if (i == missingPieceIndex && !showMissingPiece) {
+                // Пропускаем пустой кусочек, если он ещё не показан
+                continue;
+            }
 
+            Bitmap piece = puzzlePieces[i];
+            if (piece != null) {
+                int row = i / PUZZLE_COLS;
+                int col = i % PUZZLE_COLS;
+
+                float left = col * pieceWidth * scaleX;
+                float top = row * pieceHeight * scaleY;
+
+                Bitmap scaledPiece = Bitmap.createScaledBitmap(piece,
+                        (int)(pieceWidth * scaleX),
+                        (int)(pieceHeight * scaleY),
+                        true);
+
+                canvas.drawBitmap(scaledPiece, left, top, null);
+            }
+        }
+
+        // Рисуем пользователя поверх
         if (userX >= 0 && userY >= 0) {
-            float scaleX = (float) getWidth() / (mapBitmap.getWidth());
-            float scaleY = (float) getHeight() / (mapBitmap.getHeight());
             float drawX = animatedX * scaleX - userMarker.getWidth() / 2f;
             float drawY = animatedY * scaleY - userMarker.getHeight() / 2f;
-            // 1. Вычисляем угол направления (в градусах)
-            float dx = animatedX - previousX;
-            float dy = animatedY - previousY;
-            float angle = (float) Math.toDegrees(Math.atan2(dy, dx));
-
-            // 2. Создаём матрицу поворота и трансляции
-            Matrix matrix = new Matrix();
-            matrix.postTranslate(-userMarker.getWidth() / 2f, -userMarker.getHeight() / 2f); // Центрируем
-            matrix.postRotate(angle); // Поворачиваем
-            matrix.postTranslate(drawX, drawY); // Перемещаем в нужную позицию
-
-            // 3. Рисуем повернутый маркер
-            canvas.drawBitmap(userMarker, matrix, null);
-
+            Log.d("ТРИППИ ТРОПА",userX + " onDRAW " + userY);
+            canvas.drawBitmap(userMarker, drawX, drawY, null);
         }
     }
 
-
 }
+
+
+
