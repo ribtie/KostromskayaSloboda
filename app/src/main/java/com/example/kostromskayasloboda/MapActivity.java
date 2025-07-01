@@ -3,61 +3,59 @@ package com.example.kostromskayasloboda;
 import android.Manifest;
 import android.content.pm.PackageManager;
 import android.location.Location;
-import android.location.LocationListener;
-import android.location.LocationManager;
 import android.os.Bundle;
-
-import androidx.annotation.NonNull;
+import android.widget.ProgressBar;
+import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
 public class MapActivity extends AppCompatActivity {
     private MapView mapView;
-    private LocationManager locationManager;
+    private static final int LOCATION_PERMISSION_CODE = 1001;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.map_activity);
-        mapView = findViewById(R.id.mapView);
-        mapView.setActivity(this);
-        mapView.initUI(findViewById(R.id.count),findViewById(R.id.progressBar));
-        locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
+        setContentView(R.layout.activity_map);
 
-        if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION)
-                != PackageManager.PERMISSION_GRANTED) {
+        mapView = findViewById(R.id.mapView);
+        TextView countView = findViewById(R.id.countTextView);
+        ProgressBar progressBar = findViewById(R.id.progressBar);
+
+        checkLocationPermission();
+    }
+
+    private void checkLocationPermission() {
+        if (ContextCompat.checkSelfPermission(this,
+                Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+
             ActivityCompat.requestPermissions(this,
-                    new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION}, 1);
+                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                    LOCATION_PERMISSION_CODE);
         } else {
-            startGPS();
+            startLocationUpdates();
         }
     }
 
-    private void startGPS() {
-        if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-
-            return;
-        }
-        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,
-                1000, 1, new LocationListener() {
-                    @Override
-                    public void onLocationChanged(@NonNull Location location) {
-                        double lat = location.getLatitude();
-                        double lon = location.getLongitude();
-                        mapView.updateUserPosition(lat, lon);
-                    }
-                });
+    private void startLocationUpdates() {
+        // Реализация получения местоположения
+        // Пример:
+        // Location lastLocation = locationManager.getLastKnownLocation();
+        // if (lastLocation != null) {
+        //     mapView.updateUserPosition(lastLocation.getLatitude(), lastLocation.getLongitude());
+        // }
     }
 
     @Override
     public void onRequestPermissionsResult(int requestCode,
-                                           @NonNull String[] permissions,
-                                           @NonNull int[] grantResults) {
+                                           String[] permissions,
+                                           int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if (requestCode == 1 &&
-                grantResults.length > 0 &&
-                grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-            startGPS();
+        if (requestCode == LOCATION_PERMISSION_CODE) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                startLocationUpdates();
+            }
         }
     }
 }
