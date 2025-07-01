@@ -21,6 +21,7 @@ public class MapActivity extends AppCompatActivity {
         setContentView(R.layout.map_activity);
         mapView = findViewById(R.id.mapView);
         mapView.setActivity(this);
+        mapView.initUI(findViewById(R.id.count),findViewById(R.id.progressBar));
         locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
 
         if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION)

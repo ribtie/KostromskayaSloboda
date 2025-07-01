@@ -15,7 +15,7 @@
         <item name="android:textSize">20sp</item>
     </style>
     <style name="OrangeTextBlocksWithoutBackground">
-        <item name="android:textColor">#DB6600</item>
+        <item name="android:textColor">#DB651F</item>
         <item name="android:padding">5dp</item>
         <item name="android:fontFamily">@font/montserrat_bold</item>
         <item name="android:textSize">20sp</item>

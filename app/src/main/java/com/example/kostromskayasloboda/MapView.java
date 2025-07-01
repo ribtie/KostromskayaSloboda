@@ -5,9 +5,13 @@ import android.graphics.*;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
+import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+
+import java.util.Arrays;
 
 public class MapView extends View {
 
@@ -22,27 +26,96 @@ public class MapView extends View {
     private static final int PUZZLE_ROWS = 3;
     private static final int PUZZLE_COLS = 3;
     private Bitmap[] puzzlePieces = new Bitmap[PUZZLE_ROWS * PUZZLE_COLS];
-    private int missingPieceIndex = 3; //
+
+    private static Boolean[] booleanPiecesShow = new Boolean[PUZZLE_ROWS * PUZZLE_COLS];
+    private int[] missingPieceIndex = {3,6};
     public static Boolean showMissingPiece = false; // флаг, появился ли пропущенный кусок
     private int pieceWidth, pieceHeight;
 
+    TextView count;
+
+    ProgressBar progressBar;
+
+    String currentCount;
 
     public MapView(Context context, AttributeSet attrs) {
         super(context, attrs);
 
         mapBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.museum_map);
         userMarker = BitmapFactory.decodeResource(getResources(), R.drawable.user_marker);
-        splitMapIntoPieces();
+        for(int i=0; i<booleanPiecesShow.length; i++) {
+            booleanPiecesShow[i]=true;
+        }
 
+        for(int i=0; i<missingPieceIndex.length; i++) {
+            booleanPiecesShow[missingPieceIndex[i]] = false; /// заполняем фолс там где пропуски
+        }
+
+
+        splitMapIntoPieces();
+    }
+
+    public void initUI(TextView count, ProgressBar progressBar) {
+
+        this.count = count;
+        this.progressBar = progressBar;
+        currentCount = count.getText().toString();
+        if (progressBar != null) {
+            progressBar.setMax(missingPieceIndex.length);
+        }
+
+        if (count != null) {
+            String currentCount = count.getText().toString();
+            if (!currentCount.isEmpty()) {
+                String newText = currentCount.substring(0, currentCount.length() - 1) + missingPieceIndex.length;
+                count.setText(newText);
+            }
+        }
+    }
+    private void changeCurrentCount() {
+        if (count != null) {
+            currentCount = count.getText().toString();
+            if (!currentCount.isEmpty()) {
+                int currentCountInt = countNullAndNotNullInMassive(missingPieceIndex)[0];
+                String newText = currentCountInt + currentCount.substring(1, currentCount.length());
+                count.setText(newText);
+                progressBar.setProgress(currentCountInt, true);
+            }
+        }
+
+    }
+    private int[] countNullAndNotNullInMassive(int[] array) {
+        int curCountNotNull=0;
+        int curCountNull=0;
+        for(int i=0; i<array.length; i++) {
+            if (array[i] != -1) curCountNotNull += 1;
+            else curCountNull+=1;
+        }
+        return new int[]{curCountNull,curCountNotNull};
+    }
+    private boolean contains(int[] array, int value) {
+        for (int i : array) {
+            if (i == value) return true;
+        }
+        return false;
+    }
+
+    public static void deleteContains(int[] array, int value) {
+        for (int i = 0; i < array.length; i++) {
+            if (array[i] == value) {
+                array[i] = -1;
+            }
+        }
     }
     private void splitMapIntoPieces() {
         pieceWidth = mapBitmap.getWidth() / PUZZLE_COLS;
         pieceHeight = mapBitmap.getHeight() / PUZZLE_ROWS;
 
+
         for (int row = 0; row < PUZZLE_ROWS; row++) {
             for (int col = 0; col < PUZZLE_COLS; col++) {
                 int index = row * PUZZLE_COLS + col;
-                if (index == missingPieceIndex && !showMissingPiece) {
+                if (contains(missingPieceIndex, index) && !booleanPiecesShow[index]) {
                     puzzlePieces[index] = null; // пустой кусочек
                     continue;
                 }
@@ -110,37 +183,53 @@ public class MapView extends View {
 
 
             });
-        Log.d("ТРИППИ ТРОПА",userX + " UPDATE " + userY);
+
 
     }
+    public int getUserPuzzleIndex(float X, float Y) { /// вычисляем в какой клетке по координатам мира
+        if (X < 0 || Y < 0) return -1;
+
+        int col = (int)(X / pieceWidth);
+        int row = (int)(Y / pieceHeight);
+
+        if (col < 0 || col >= PUZZLE_COLS || row < 0 || row >= PUZZLE_ROWS) {
+            return -1;
+        }
+
+        return row * PUZZLE_COLS + col;
+    }
+
+
 
     private void checkInPosition(float userX, float userY) {
 
-        ///if (showMissingPiece) return; // уже показали
+        int index = getUserPuzzleIndex(userX, userY); // если придумать как сделать универсальным, наебка в том что в тесте разные ответы нужны
+        if (contains(missingPieceIndex, index)) {
+            if (!booleanPiecesShow[index]) { /// дом который ищем, координаты, отдельные методы индекс - смотри значение в массиве
+                float[] schoolXy = gpsToPixel(57.737786, 41.010429);
+                float newX = schoolXy[0];
+                float newY = schoolXy[1];
+                if (Math.abs(newX - userX) <= 100 && Math.abs(newY - userY) <= 100) {
+                    // перерисовать с новым кусочком
+                    TestBox.onCorrectAnswerGlobal = () -> {
+                        MapView.booleanPiecesShow[index] = true;
+                        MapView.deleteContains(missingPieceIndex,index);
+                        splitMapIntoPieces();
+                        invalidate();
+                        changeCurrentCount();
+                        Toast.makeText(activity, "Молодец! Ты открыл новый кусочек карты ✅", Toast.LENGTH_SHORT).show();
+                    };
+                    TestBox testBox = new TestBox(
+                            R.drawable.museum_map, "Церковь", /// верный ответ
+                            R.drawable.museum_map, "Дом", /// неверные ответы V
+                            R.drawable.museum_map, "Кузница"
+                    );
+                    testBox.show(activity.getSupportFragmentManager(), "Диалог");
 
-        Boolean school = false;
-        if(school==false){ /// дом который ищем, координаты, отдельные методы
-            float[] schoolXy = gpsToPixel(57.737786, 41.010429);
-            float newX = schoolXy[0];
-            float newY = schoolXy[1];
-            if(Math.abs(newX-userX)<=100 && Math.abs(newY-userY)<=100) {
-                 // перерисовать с новым кусочком
-                Toast.makeText(this.getContext(), showMissingPiece + " ", Toast.LENGTH_SHORT).show();
-                TestBox.onCorrectAnswerGlobal = () -> {
-                    MapView.showMissingPiece = true;
-                    splitMapIntoPieces();
-                    invalidate();
-                    Toast.makeText(activity, "Молодец! Ты открыл новый кусочек карты ✅", Toast.LENGTH_SHORT).show();
-                };
-                TestBox testBox = new TestBox(
-                        R.drawable.museum_map, "Церковь",
-                        R.drawable.museum_map, "Дом",
-                        R.drawable.museum_map, "Кузница"
-                );
-                testBox.show(activity.getSupportFragmentManager(), "Диалог");
-
+                }
             }
         }
+        changeCurrentCount();
     }
 
     private float[] gpsToPixel(double lat, double lon) {
@@ -171,7 +260,7 @@ public class MapView extends View {
 
         // Рисуем кусочки
         for (int i = 0; i < puzzlePieces.length; i++) {
-            if (i == missingPieceIndex && !showMissingPiece) {
+            if (contains(missingPieceIndex, i) && !booleanPiecesShow[i]) {
                 // Пропускаем пустой кусочек, если он ещё не показан
                 continue;
             }
@@ -197,7 +286,6 @@ public class MapView extends View {
         if (userX >= 0 && userY >= 0) {
             float drawX = animatedX * scaleX - userMarker.getWidth() / 2f;
             float drawY = animatedY * scaleY - userMarker.getHeight() / 2f;
-            Log.d("ТРИППИ ТРОПА",userX + " onDRAW " + userY);
             canvas.drawBitmap(userMarker, drawX, drawY, null);
         }
     }
