@@ -28,7 +28,11 @@ public class MapView extends View {
     private Bitmap[] puzzlePieces = new Bitmap[PUZZLE_ROWS * PUZZLE_COLS];
 
     private static Boolean[] booleanPiecesShow = new Boolean[PUZZLE_ROWS * PUZZLE_COLS];
-    private int[] missingPieceIndex = {3,6};
+
+    private float[][] coordinates = {{57.737786F, 41.010429F},{57.739045F, 41.011621F}}; /// массив координат точек, чтобы он сам определял области где ставить пропуски
+
+    private int[] missingPieceIndex = new int[coordinates.length];;
+
     public static Boolean showMissingPiece = false; // флаг, появился ли пропущенный кусок
     private int pieceWidth, pieceHeight;
 
@@ -38,15 +42,37 @@ public class MapView extends View {
 
     String currentCount;
 
+    public void makeMiss(float[][] coordinates, int[] missingPieceIndex) {
+        for (int i = 0; i < coordinates.length; i++) {
+            float[] xy = gpsToPixel(coordinates[i][0], coordinates[i][1]);
+            float newX = xy[0];
+            float newY = xy[1];
+            int index = getUserPuzzleIndex(newX, newY);
+            Log.e("Макароны", "Invalid puzzle index for coordinates: " + Arrays.toString(coordinates[i]) + " -> index: " + index + " длина " + coordinates.length);
+
+            if (index < 0 || index >= PUZZLE_ROWS * PUZZLE_COLS) {
+                Log.e("MapView", "Invalid puzzle index for coordinates: " + Arrays.toString(coordinates[i]) + " -> index: " + index);
+                missingPieceIndex[i] = -1;
+            } else {
+                missingPieceIndex[i] = index;
+            }
+        }
+    }
+
+
+
     public MapView(Context context, AttributeSet attrs) {
         super(context, attrs);
 
         mapBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.museum_map);
         userMarker = BitmapFactory.decodeResource(getResources(), R.drawable.user_marker);
+        pieceWidth = mapBitmap.getWidth() / PUZZLE_COLS;
+        pieceHeight = mapBitmap.getHeight() / PUZZLE_ROWS;
+
         for(int i=0; i<booleanPiecesShow.length; i++) {
             booleanPiecesShow[i]=true;
         }
-
+        makeMiss(coordinates,missingPieceIndex);
         for(int i=0; i<missingPieceIndex.length; i++) {
             booleanPiecesShow[missingPieceIndex[i]] = false; /// заполняем фолс там где пропуски
         }
