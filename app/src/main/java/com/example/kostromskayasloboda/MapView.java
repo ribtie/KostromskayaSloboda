@@ -1,6 +1,5 @@
 package com.example.kostromskayasloboda;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.*;
 import android.util.AttributeSet;
@@ -124,18 +123,21 @@ public class MapView extends View {
             float[] schoolXy = gpsToPixel(57.737786, 41.010429);
             float newX = schoolXy[0];
             float newY = schoolXy[1];
-            Log.d("ТРИППИ ТРОПА",Math.abs(newX-userX) + " " + Math.abs(newY-userY)+ " " + userX + " " + userY + " " + newX + " " + newY);
             if(Math.abs(newX-userX)<=100 && Math.abs(newY-userY)<=100) {
                  // перерисовать с новым кусочком
                 Toast.makeText(this.getContext(), showMissingPiece + " ", Toast.LENGTH_SHORT).show();
-                Church1.onCorrectAnswerGlobal = () -> {
+                TestBox.onCorrectAnswerGlobal = () -> {
                     MapView.showMissingPiece = true;
                     splitMapIntoPieces();
                     invalidate();
-                    Toast.makeText(activity, showMissingPiece + " ПОСЛЕ ВЕРНОГО", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(activity, "Молодец! Ты открыл новый кусочек карты ✅", Toast.LENGTH_SHORT).show();
                 };
-                Church1 church1 = new Church1();
-                church1.show(activity.getSupportFragmentManager(), "Church");
+                TestBox testBox = new TestBox(
+                        R.drawable.museum_map, "Церковь",
+                        R.drawable.museum_map, "Дом",
+                        R.drawable.museum_map, "Кузница"
+                );
+                testBox.show(activity.getSupportFragmentManager(), "Диалог");
 
             }
         }

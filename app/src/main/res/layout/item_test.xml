@@ -1,0 +1,25 @@
+<!-- layout/item_answer.xml -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="0dp"
+    android:layout_weight="1"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:gravity="center"
+    android:textAlignment="center"
+    style="@style/BackgroundBlocks">
+
+    <ImageView
+        android:id="@+id/image_answer"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:scaleType="centerCrop" />
+
+    <TextView
+        android:id="@+id/text_answer"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        style="@style/WhiteTextBlocksWithoutBackground"
+        android:gravity="center"
+        android:paddingTop="8dp" />
+
+</LinearLayout>
