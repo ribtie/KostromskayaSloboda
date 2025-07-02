@@ -3,6 +3,7 @@ package com.example.kostromskayasloboda;
 import android.content.Context;
 import android.graphics.*;
 import android.util.AttributeSet;
+import android.view.MotionEvent;
 import android.view.View;
 import androidx.annotation.Nullable;
 
@@ -12,22 +13,20 @@ public class MapView extends View {
     private Bitmap[] objectBitmaps = new Bitmap[9];
     private Bitmap userMarker;
 
-    // Размеры объектов относительно ширины экрана
     private final float[] OBJECT_RELATIVE_SIZES = {0.1f, 0.1f, 0.08f, 0.09f, 0.1f, 0.09f, 0.1f, 0.12f, 0.1f};
     private final float MARKER_RELATIVE_SIZE = 0.03f;
     private final float USER_MARKER_RELATIVE_SIZE = 0.04f;
 
-    // Координаты объектов (широта, долгота)
     private final PointF[] OBJECT_POSITIONS = {
-            new PointF(57.737786F, 41.010429F), // Мельница
-            new PointF(57.737945F, 41.010621F), // Мельница 2
-            new PointF(57.738123F, 41.010345F), // Часовня
-            new PointF(57.738456F, 41.010876F), // Дом Гармони
-            new PointF(57.738789F, 41.011210F), // Крестьянский дом
-            new PointF(57.739012F, 41.011543F), // Дом Иконника
-            new PointF(57.739345F, 41.011876F), // Дом Рыбака
-            new PointF(57.739678F, 41.012210F), // Усадьба
-            new PointF(57.740012F, 41.012543F)  // Конюшня
+            new PointF(57.737786F, 41.010429F),
+            new PointF(57.737945F, 41.010621F),
+            new PointF(57.738123F, 41.010345F),
+            new PointF(57.738456F, 41.010876F),
+            new PointF(57.738789F, 41.011210F),
+            new PointF(57.739012F, 41.011543F),
+            new PointF(57.739345F, 41.011876F),
+            new PointF(57.739678F, 41.012210F),
+            new PointF(57.740012F, 41.012543F)
     };
 
     private boolean[] foundObjects = new boolean[9];
@@ -35,6 +34,11 @@ public class MapView extends View {
     private RectF mapBounds = new RectF();
     private Paint markerPaint;
     private float userLat = -1f, userLon = -1f;
+    private OnObjectClickListener objectClickListener;
+
+    public interface OnObjectClickListener {
+        void onObjectClick(int objectIndex);
+    }
 
     public MapView(Context context) {
         super(context);
@@ -55,10 +59,8 @@ public class MapView extends View {
     }
 
     private void loadBitmaps() {
-        // Загрузка карты
         originalMap = BitmapFactory.decodeResource(getResources(), R.drawable.karta);
 
-        // Загрузка объектов
         int[] resIds = {
                 R.drawable.melnitsa, R.drawable.melnitsa2, R.drawable.chasovna,
                 R.drawable.domgar, R.drawable.dom, R.drawable.domic,
@@ -69,7 +71,6 @@ public class MapView extends View {
             objectBitmaps[i] = BitmapFactory.decodeResource(getResources(), resIds[i]);
         }
 
-        // Загрузка маркера пользователя
         userMarker = BitmapFactory.decodeResource(getResources(), R.drawable.user_marker);
     }
 
@@ -82,37 +83,20 @@ public class MapView extends View {
     private void calculateMapTransform() {
         if (originalMap == null || getWidth() == 0 || getHeight() == 0) return;
 
-        // Вычисляем соотношение сторон
-        float mapAspect = (float)originalMap.getWidth() / originalMap.getHeight();
-        float viewAspect = (float)getWidth() / getHeight();
+        // Растягиваем карту на весь контейнер
+        float scaleX = (float)getWidth() / originalMap.getWidth();
+        float scaleY = (float)getHeight() / originalMap.getHeight();
 
-        // Определяем масштаб
-        float scale;
-        if (mapAspect > viewAspect) {
-            scale = (float)getWidth() / originalMap.getWidth();
-        } else {
-            scale = (float)getHeight() / originalMap.getHeight();
-        }
-
-        // Создаем матрицу преобразования
         transformMatrix.reset();
-        transformMatrix.postScale(scale, scale);
+        transformMatrix.postScale(scaleX, scaleY);
 
-        // Центрируем карту
-        float scaledWidth = originalMap.getWidth() * scale;
-        float scaledHeight = originalMap.getHeight() * scale;
-        float dx = (getWidth() - scaledWidth) / 2;
-        float dy = (getHeight() - scaledHeight) / 2;
-        transformMatrix.postTranslate(dx, dy);
+        // Границы карты теперь совпадают с границами View
+        mapBounds.set(0, 0, getWidth(), getHeight());
 
-        // Сохраняем границы карты
-        mapBounds.set(dx, dy, dx + scaledWidth, dy + scaledHeight);
-
-        // Создаем масштабированную карту
         scaledMap = Bitmap.createScaledBitmap(
                 originalMap,
-                (int)scaledWidth,
-                (int)scaledHeight,
+                getWidth(),
+                getHeight(),
                 true
         );
     }
@@ -121,12 +105,10 @@ public class MapView extends View {
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
 
-        // Рисуем карту
         if (scaledMap != null) {
-            canvas.drawBitmap(scaledMap, transformMatrix, null);
+            canvas.drawBitmap(scaledMap, 0, 0, null);
         }
 
-        // Рисуем объекты
         for (int i = 0; i < OBJECT_POSITIONS.length; i++) {
             PointF pos = convertGeoToScreen(OBJECT_POSITIONS[i]);
 
@@ -137,7 +119,6 @@ public class MapView extends View {
             }
         }
 
-        // Рисуем маркер пользователя
         if (userLat != -1f && userLon != -1f) {
             PointF userPos = convertGeoToScreen(new PointF(userLat, userLon));
             drawUserMarker(canvas, userPos);
@@ -145,8 +126,6 @@ public class MapView extends View {
     }
 
     private PointF convertGeoToScreen(PointF geoPoint) {
-        // Преобразуем географические координаты в экранные
-        // Границы карты в географических координатах
         float minLon = 41.009f, maxLon = 41.013f;
         float minLat = 57.736f, maxLat = 57.741f;
 
@@ -188,6 +167,36 @@ public class MapView extends View {
         canvas.drawBitmap(userMarker, null, dstRect, null);
     }
 
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+        if (event.getAction() == MotionEvent.ACTION_DOWN && objectClickListener != null) {
+            PointF touchPoint = new PointF(event.getX(), event.getY());
+
+            for (int i = 0; i < OBJECT_POSITIONS.length; i++) {
+                PointF objPos = convertGeoToScreen(OBJECT_POSITIONS[i]);
+
+                if (foundObjects[i]) {
+                    float width = getWidth() * OBJECT_RELATIVE_SIZES[i];
+                    float height = width * objectBitmaps[i].getHeight() / objectBitmaps[i].getWidth();
+
+                    if (touchPoint.x >= objPos.x - width/2 && touchPoint.x <= objPos.x + width/2 &&
+                            touchPoint.y >= objPos.y - height/2 && touchPoint.y <= objPos.y + height/2) {
+                        objectClickListener.onObjectClick(i);
+                        return true;
+                    }
+                } else {
+                    float markerSize = getWidth() * MARKER_RELATIVE_SIZE;
+                    if (Math.abs(touchPoint.x - objPos.x) <= markerSize &&
+                            Math.abs(touchPoint.y - objPos.y) <= markerSize) {
+                        objectClickListener.onObjectClick(i);
+                        return true;
+                    }
+                }
+            }
+        }
+        return super.onTouchEvent(event);
+    }
+
     public void updateUserPosition(double lat, double lon) {
         userLat = (float)lat;
         userLon = (float)lon;
@@ -199,6 +208,17 @@ public class MapView extends View {
             foundObjects[index] = found;
             invalidate();
         }
+    }
+
+    public Bitmap getObjectBitmap(int index) {
+        if (index >= 0 && index < objectBitmaps.length) {
+            return objectBitmaps[index];
+        }
+        return null;
+    }
+
+    public void setOnObjectClickListener(OnObjectClickListener listener) {
+        this.objectClickListener = listener;
     }
 
     @Override
