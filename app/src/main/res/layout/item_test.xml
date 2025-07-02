@@ -20,6 +20,7 @@
         android:layout_height="wrap_content"
         style="@style/WhiteTextBlocksWithoutBackground"
         android:gravity="center"
+        android:textSize="14sp"
         android:paddingTop="8dp" />
 
 </LinearLayout>

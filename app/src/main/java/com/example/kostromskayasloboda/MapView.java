@@ -23,13 +23,13 @@ public class MapView extends View {
     private float animatedX = -1;
     private float animatedY = -1;
 
-    private static final int PUZZLE_ROWS = 3;
-    private static final int PUZZLE_COLS = 3;
+    private static final int PUZZLE_ROWS = 5;
+    private static final int PUZZLE_COLS = 10;
     private Bitmap[] puzzlePieces = new Bitmap[PUZZLE_ROWS * PUZZLE_COLS];
 
     private static Boolean[] booleanPiecesShow = new Boolean[PUZZLE_ROWS * PUZZLE_COLS];
 
-    private float[][] coordinates = {{57.737786F, 41.010429F},{57.739045F, 41.011621F}}; /// массив координат точек, чтобы он сам определял области где ставить пропуски
+    private float[][] coordinates = {{57.774723F, 40.889324F},{57.775179F, 40.893296F}}; /// массив координат точек, чтобы он сам определял области где ставить пропуски
 
     private int[] missingPieceIndex = new int[coordinates.length];;
 
@@ -232,7 +232,7 @@ public class MapView extends View {
         int index = getUserPuzzleIndex(userX, userY); // если придумать как сделать универсальным, наебка в том что в тесте разные ответы нужны
         if (contains(missingPieceIndex, index)) {
             if (!booleanPiecesShow[index]) { /// дом который ищем, координаты, отдельные методы индекс - смотри значение в массиве
-                float[] schoolXy = gpsToPixel(57.737786, 41.010429);
+                float[] schoolXy = gpsToPixel(57.774723, 40.889324);
                 float newX = schoolXy[0];
                 float newY = schoolXy[1];
                 if (Math.abs(newX - userX) <= 100 && Math.abs(newY - userY) <= 100) {
@@ -246,9 +246,9 @@ public class MapView extends View {
                         Toast.makeText(activity, "Молодец! Ты открыл новый кусочек карты ✅", Toast.LENGTH_SHORT).show();
                     };
                     TestBox testBox = new TestBox(
-                            R.drawable.museum_map, "Церковь", /// верный ответ
-                            R.drawable.museum_map, "Дом", /// неверные ответы V
-                            R.drawable.museum_map, "Кузница"
+                            R.drawable.chasovna, "Скасская церковь", /// верный ответ
+                            R.drawable.domgar, "Дом Лохиной", /// неверные ответы V
+                            R.drawable.dom, "Кузница"
                     );
                     testBox.show(activity.getSupportFragmentManager(), "Диалог");
 
@@ -260,10 +260,10 @@ public class MapView extends View {
 
     private float[] gpsToPixel(double lat, double lon) {
         // границы карты узнать!!!! ,
-        double latTop = 57.739839;
-        double lonLeft =  41.008746;
-        double latBottom = 57.736478;
-        double lonRight = 41.015191;
+        double latTop = 57.776203;
+        double lonLeft =   40.888835;
+        double latBottom = 57.774043;
+        double lonRight = 40.894864;
 
         int imgWidth = mapBitmap.getWidth();
         int imgHeight = mapBitmap.getHeight();
