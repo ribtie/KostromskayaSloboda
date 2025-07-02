@@ -1,7 +1,5 @@
 package com.example.kostromskayasloboda;
 
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -13,14 +11,15 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.DialogFragment;
 
 public class ObjectInfoDialog extends DialogFragment {
-    private static final String ARG_IMAGE = "image_name";
+    private static final String ARG_IMAGE_RES_ID = "image_res_id";
     private static final String ARG_TITLE = "title";
     private static final String ARG_DESC = "description";
 
-    public static ObjectInfoDialog newInstance(String imageName, String title, String description) {
+    // Единственный метод для создания диалога
+    public static ObjectInfoDialog newInstance(int imageResId, String title, String description) {
         ObjectInfoDialog fragment = new ObjectInfoDialog();
         Bundle args = new Bundle();
-        args.putString(ARG_IMAGE, imageName);
+        args.putInt(ARG_IMAGE_RES_ID, imageResId);
         args.putString(ARG_TITLE, title);
         args.putString(ARG_DESC, description);
         fragment.setArguments(args);
@@ -38,17 +37,14 @@ public class ObjectInfoDialog extends DialogFragment {
         TextView titleView = view.findViewById(R.id.object_title);
         TextView descView = view.findViewById(R.id.object_description);
 
-        if (getArguments() != null) {
-            String imageName = getArguments().getString(ARG_IMAGE);
-            int resId = getResources().getIdentifier(imageName, "drawable",
-                    requireContext().getPackageName());
+        Bundle args = getArguments();
+        if (args != null) {
+            // Устанавливаем изображение из ресурса
+            imageView.setImageResource(args.getInt(ARG_IMAGE_RES_ID));
 
-            if (resId != 0) {
-                imageView.setImageResource(resId);
-            }
-
-            titleView.setText(getArguments().getString(ARG_TITLE));
-            descView.setText(getArguments().getString(ARG_DESC));
+            // Устанавливаем текст
+            titleView.setText(args.getString(ARG_TITLE));
+            descView.setText(args.getString(ARG_DESC));
         }
 
         view.findViewById(R.id.ok_button).setOnClickListener(v -> dismiss());

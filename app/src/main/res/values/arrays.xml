@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="object_names">
+        <item>Мельница</item>
+        <item>Мельница 2</item>
+        <item>Часовня</item>
+        <item>Дом Гармони</item>
+        <item>Крестьянский дом</item>
+        <item>Дом Иконника</item>
+        <item>Дом Рыбака</item>
+        <item>Усадьба</item>
+        <item>Конюшня</item>
+    </string-array>
+
+    <string-array name="object_titles">
+        <item>Мельница</item>
+        <item>Вторая мельница</item>
+        <item>Деревянная часовня</item>
+        <item>Дом Гармони</item>
+        <item>Крестьянский дом</item>
+        <item>Дом Иконника</item>
+        <item>Дом Рыбака</item>
+        <item>Усадьба</item>
+        <item>Конюшня</item>
+    </string-array>
+
+    <string-array name="object_descriptions">
+        <item>Деревянная мельница XIX века, привезенная из Костромской области. Использовалась для помола зерна.</item>
+        <item>Еще одна деревянная мельница, демонстрирующая разнообразие архитектурных решений.</item>
+        <item>Небольшая деревянная часовня, типичная для русских деревень.</item>
+        <item>Дом зажиточного крестьянина с резными украшениями.</item>
+        <item>Типичный дом крестьянина средней руки с хозяйственными постройками.</item>
+        <item>Дом иконописца с мастерской на втором этаже.</item>
+        <item>Дом рыбака с характерными элементами для хранения снастей.</item>
+        <item>Усадьба помещика с просторными комнатами и парадным входом.</item>
+        <item>Конюшня с сеновалом и помещением для карет.</item>
+    </string-array>
+
+    <string-array name="object_image_names">
+        <item>melnitsa</item>
+        <item>melnitsa2</item>
+        <item>chasovna</item>
+        <item>domgar</item>
+        <item>dom</item>
+        <item>domic</item>
+        <item>domishe</item>
+        <item>usadba</item>
+        <item>konusna</item>
+    </string-array>
+</resources>
