@@ -25,7 +25,8 @@
             </intent-filter>
         </activity>
         <activity android:name=".MapActivity"/>
-
+        <activity android:name=".CompletionActivity"/>
+        <activity android:name=".FoundObjectsActivity"/>
         <meta-data
             android:name="preloaded_fonts"
             android:resource="@array/preloaded_fonts" />
