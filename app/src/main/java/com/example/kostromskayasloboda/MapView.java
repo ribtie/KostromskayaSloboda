@@ -3,320 +3,227 @@ package com.example.kostromskayasloboda;
 import android.content.Context;
 import android.graphics.*;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.View;
-import android.widget.ProgressBar;
-import android.widget.TextView;
-import android.widget.Toast;
-
-import androidx.appcompat.app.AppCompatActivity;
-
-import java.util.Arrays;
+import androidx.annotation.Nullable;
 
 public class MapView extends View {
-
-    private Bitmap mapBitmap;
-    private float userX = -1;
-    private float userY = -1;
-    private Paint userPaint;
+    private Bitmap originalMap;
+    private Bitmap scaledMap;
+    private Bitmap[] objectBitmaps = new Bitmap[9];
     private Bitmap userMarker;
-    private float animatedX = -1;
-    private float animatedY = -1;
 
-    private static final int PUZZLE_ROWS = 3;
-    private static final int PUZZLE_COLS = 3;
-    private Bitmap[] puzzlePieces = new Bitmap[PUZZLE_ROWS * PUZZLE_COLS];
+    // Размеры объектов относительно ширины экрана
+    private final float[] OBJECT_RELATIVE_SIZES = {0.1f, 0.1f, 0.08f, 0.09f, 0.1f, 0.09f, 0.1f, 0.12f, 0.1f};
+    private final float MARKER_RELATIVE_SIZE = 0.03f;
+    private final float USER_MARKER_RELATIVE_SIZE = 0.04f;
 
-    private static Boolean[] booleanPiecesShow = new Boolean[PUZZLE_ROWS * PUZZLE_COLS];
+    // Координаты объектов (широта, долгота)
+    private final PointF[] OBJECT_POSITIONS = {
+            new PointF(57.737786F, 41.010429F), // Мельница
+            new PointF(57.737945F, 41.010621F), // Мельница 2
+            new PointF(57.738123F, 41.010345F), // Часовня
+            new PointF(57.738456F, 41.010876F), // Дом Гармони
+            new PointF(57.738789F, 41.011210F), // Крестьянский дом
+            new PointF(57.739012F, 41.011543F), // Дом Иконника
+            new PointF(57.739345F, 41.011876F), // Дом Рыбака
+            new PointF(57.739678F, 41.012210F), // Усадьба
+            new PointF(57.740012F, 41.012543F)  // Конюшня
+    };
 
-    private float[][] coordinates = {{57.737786F, 41.010429F},{57.739045F, 41.011621F}}; /// массив координат точек, чтобы он сам определял области где ставить пропуски
+    private boolean[] foundObjects = new boolean[9];
+    private Matrix transformMatrix = new Matrix();
+    private RectF mapBounds = new RectF();
+    private Paint markerPaint;
+    private float userLat = -1f, userLon = -1f;
 
-    private int[] missingPieceIndex = new int[coordinates.length];;
-
-    public static Boolean showMissingPiece = false; // флаг, появился ли пропущенный кусок
-    private int pieceWidth, pieceHeight;
-
-    TextView count;
-
-    ProgressBar progressBar;
-
-    String currentCount;
-
-    public void makeMiss(float[][] coordinates, int[] missingPieceIndex) {
-        for (int i = 0; i < coordinates.length; i++) {
-            float[] xy = gpsToPixel(coordinates[i][0], coordinates[i][1]);
-            float newX = xy[0];
-            float newY = xy[1];
-            int index = getUserPuzzleIndex(newX, newY);
-            Log.e("Макароны", "Invalid puzzle index for coordinates: " + Arrays.toString(coordinates[i]) + " -> index: " + index + " длина " + coordinates.length);
-
-            if (index < 0 || index >= PUZZLE_ROWS * PUZZLE_COLS) {
-                Log.e("MapView", "Invalid puzzle index for coordinates: " + Arrays.toString(coordinates[i]) + " -> index: " + index);
-                missingPieceIndex[i] = -1;
-            } else {
-                missingPieceIndex[i] = index;
-            }
-        }
+    public MapView(Context context) {
+        super(context);
+        init();
     }
 
-
-
-    public MapView(Context context, AttributeSet attrs) {
+    public MapView(Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
+        init();
+    }
 
-        mapBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.museum_map);
+    private void init() {
+        markerPaint = new Paint();
+        markerPaint.setColor(Color.RED);
+        markerPaint.setStyle(Paint.Style.FILL);
+
+        loadBitmaps();
+    }
+
+    private void loadBitmaps() {
+        // Загрузка карты
+        originalMap = BitmapFactory.decodeResource(getResources(), R.drawable.karta);
+
+        // Загрузка объектов
+        int[] resIds = {
+                R.drawable.melnitsa, R.drawable.melnitsa2, R.drawable.chasovna,
+                R.drawable.domgar, R.drawable.dom, R.drawable.domic,
+                R.drawable.domishe, R.drawable.usadba, R.drawable.konusna
+        };
+
+        for (int i = 0; i < objectBitmaps.length; i++) {
+            objectBitmaps[i] = BitmapFactory.decodeResource(getResources(), resIds[i]);
+        }
+
+        // Загрузка маркера пользователя
         userMarker = BitmapFactory.decodeResource(getResources(), R.drawable.user_marker);
-        pieceWidth = mapBitmap.getWidth() / PUZZLE_COLS;
-        pieceHeight = mapBitmap.getHeight() / PUZZLE_ROWS;
-
-        for(int i=0; i<booleanPiecesShow.length; i++) {
-            booleanPiecesShow[i]=true;
-        }
-        makeMiss(coordinates,missingPieceIndex);
-        for(int i=0; i<missingPieceIndex.length; i++) {
-            booleanPiecesShow[missingPieceIndex[i]] = false; /// заполняем фолс там где пропуски
-        }
-
-
-        splitMapIntoPieces();
     }
 
-    public void initUI(TextView count, ProgressBar progressBar) {
-
-        this.count = count;
-        this.progressBar = progressBar;
-        currentCount = count.getText().toString();
-        if (progressBar != null) {
-            progressBar.setMax(missingPieceIndex.length);
-        }
-
-        if (count != null) {
-            String currentCount = count.getText().toString();
-            if (!currentCount.isEmpty()) {
-                String newText = currentCount.substring(0, currentCount.length() - 1) + missingPieceIndex.length;
-                count.setText(newText);
-            }
-        }
+    @Override
+    protected void onSizeChanged(int w, int h, int oldw, int oldh) {
+        super.onSizeChanged(w, h, oldw, oldh);
+        calculateMapTransform();
     }
-    private void changeCurrentCount() {
-        if (count != null) {
-            currentCount = count.getText().toString();
-            if (!currentCount.isEmpty()) {
-                int currentCountInt = countNullAndNotNullInMassive(missingPieceIndex)[0];
-                String newText = currentCountInt + currentCount.substring(1, currentCount.length());
-                count.setText(newText);
-                progressBar.setProgress(currentCountInt, true);
-            }
+
+    private void calculateMapTransform() {
+        if (originalMap == null || getWidth() == 0 || getHeight() == 0) return;
+
+        // Вычисляем соотношение сторон
+        float mapAspect = (float)originalMap.getWidth() / originalMap.getHeight();
+        float viewAspect = (float)getWidth() / getHeight();
+
+        // Определяем масштаб
+        float scale;
+        if (mapAspect > viewAspect) {
+            scale = (float)getWidth() / originalMap.getWidth();
+        } else {
+            scale = (float)getHeight() / originalMap.getHeight();
         }
 
-    }
-    private int[] countNullAndNotNullInMassive(int[] array) {
-        int curCountNotNull=0;
-        int curCountNull=0;
-        for(int i=0; i<array.length; i++) {
-            if (array[i] != -1) curCountNotNull += 1;
-            else curCountNull+=1;
-        }
-        return new int[]{curCountNull,curCountNotNull};
-    }
-    private boolean contains(int[] array, int value) {
-        for (int i : array) {
-            if (i == value) return true;
-        }
-        return false;
-    }
+        // Создаем матрицу преобразования
+        transformMatrix.reset();
+        transformMatrix.postScale(scale, scale);
 
-    public static void deleteContains(int[] array, int value) {
-        for (int i = 0; i < array.length; i++) {
-            if (array[i] == value) {
-                array[i] = -1;
-            }
-        }
-    }
-    private void splitMapIntoPieces() {
-        pieceWidth = mapBitmap.getWidth() / PUZZLE_COLS;
-        pieceHeight = mapBitmap.getHeight() / PUZZLE_ROWS;
+        // Центрируем карту
+        float scaledWidth = originalMap.getWidth() * scale;
+        float scaledHeight = originalMap.getHeight() * scale;
+        float dx = (getWidth() - scaledWidth) / 2;
+        float dy = (getHeight() - scaledHeight) / 2;
+        transformMatrix.postTranslate(dx, dy);
 
+        // Сохраняем границы карты
+        mapBounds.set(dx, dy, dx + scaledWidth, dy + scaledHeight);
 
-        for (int row = 0; row < PUZZLE_ROWS; row++) {
-            for (int col = 0; col < PUZZLE_COLS; col++) {
-                int index = row * PUZZLE_COLS + col;
-                if (contains(missingPieceIndex, index) && !booleanPiecesShow[index]) {
-                    puzzlePieces[index] = null; // пустой кусочек
-                    continue;
-                }
-                puzzlePieces[index] = Bitmap.createBitmap(
-                        mapBitmap,
-                        col * pieceWidth,
-                        row * pieceHeight,
-                        pieceWidth,
-                        pieceHeight
-                );
-            }
-        }
-    }
-
-    private AppCompatActivity activity;
-
-    public void setActivity(AppCompatActivity activity) {
-        this.activity = activity;
-    }
-    public void updateUserPosition(double lat, double lon) {
-            float[] xy = gpsToPixel(lat, lon);
-            float newX = xy[0];
-            float newY = xy[1];
-
-            // Если это первый запуск — сразу установить
-            if (userX == -1 && userY == -1) {
-                userX = newX;
-                userY = newY;
-                animatedX = newX;
-                animatedY = newY;
-                invalidate();
-                return;
-            }
-
-
-
-            final float startX = userX;
-            final float startY = userY;
-            final float endX = newX;
-            final float endY = newY;
-            final long duration = 300;
-            final long startTime = System.currentTimeMillis();
-
-            post(new Runnable() {
-                @Override
-                public void run() {
-                    long elapsed = System.currentTimeMillis() - startTime;
-                    float t = Math.min(1f, (float) elapsed / duration);
-
-                    // Линейная интерполяция
-                    animatedX = startX + (endX - startX) * t;
-                    animatedY = startY + (endY - startY) * t;
-
-                    invalidate();
-
-                    if (t < 1f) {
-                        postDelayed(this, 16);
-                    } else {
-                        userX = endX;
-                        userY = endY;
-                        checkInPosition(userX, userY);
-                    }
-
-                }
-
-
-            });
-
-
-    }
-    public int getUserPuzzleIndex(float X, float Y) { /// вычисляем в какой клетке по координатам мира
-        if (X < 0 || Y < 0) return -1;
-
-        int col = (int)(X / pieceWidth);
-        int row = (int)(Y / pieceHeight);
-
-        if (col < 0 || col >= PUZZLE_COLS || row < 0 || row >= PUZZLE_ROWS) {
-            return -1;
-        }
-
-        return row * PUZZLE_COLS + col;
-    }
-
-
-
-    private void checkInPosition(float userX, float userY) {
-
-        int index = getUserPuzzleIndex(userX, userY); // если придумать как сделать универсальным, наебка в том что в тесте разные ответы нужны
-        if (contains(missingPieceIndex, index)) {
-            if (!booleanPiecesShow[index]) { /// дом который ищем, координаты, отдельные методы индекс - смотри значение в массиве
-                float[] schoolXy = gpsToPixel(57.737786, 41.010429);
-                float newX = schoolXy[0];
-                float newY = schoolXy[1];
-                if (Math.abs(newX - userX) <= 100 && Math.abs(newY - userY) <= 100) {
-                    // перерисовать с новым кусочком
-                    TestBox.onCorrectAnswerGlobal = () -> {
-                        MapView.booleanPiecesShow[index] = true;
-                        MapView.deleteContains(missingPieceIndex,index);
-                        splitMapIntoPieces();
-                        invalidate();
-                        changeCurrentCount();
-                        Toast.makeText(activity, "Молодец! Ты открыл новый кусочек карты ✅", Toast.LENGTH_SHORT).show();
-                    };
-                    TestBox testBox = new TestBox(
-                            R.drawable.museum_map, "Церковь", /// верный ответ
-                            R.drawable.museum_map, "Дом", /// неверные ответы V
-                            R.drawable.museum_map, "Кузница"
-                    );
-                    testBox.show(activity.getSupportFragmentManager(), "Диалог");
-
-                }
-            }
-        }
-        changeCurrentCount();
-    }
-
-    private float[] gpsToPixel(double lat, double lon) {
-        // границы карты узнать!!!! ,
-        double latTop = 57.739839;
-        double lonLeft =  41.008746;
-        double latBottom = 57.736478;
-        double lonRight = 41.015191;
-
-        int imgWidth = mapBitmap.getWidth();
-        int imgHeight = mapBitmap.getHeight();
-
-        float x = (float) ((lon - lonLeft) / (lonRight - lonLeft) * imgWidth);
-        float y = (float) ((latTop - lat) / (latTop - latBottom) * imgHeight);
-
-        return new float[]{x, y};
-    }
-    private float[] gpsToPixel(double[] latLon) {
-        return gpsToPixel(latLon[0], latLon[1]);
+        // Создаем масштабированную карту
+        scaledMap = Bitmap.createScaledBitmap(
+                originalMap,
+                (int)scaledWidth,
+                (int)scaledHeight,
+                true
+        );
     }
 
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
 
-        float scaleX = (float) getWidth() / mapBitmap.getWidth();
-        float scaleY = (float) getHeight() / mapBitmap.getHeight();
+        // Рисуем карту
+        if (scaledMap != null) {
+            canvas.drawBitmap(scaledMap, transformMatrix, null);
+        }
 
-        // Рисуем кусочки
-        for (int i = 0; i < puzzlePieces.length; i++) {
-            if (contains(missingPieceIndex, i) && !booleanPiecesShow[i]) {
-                // Пропускаем пустой кусочек, если он ещё не показан
-                continue;
-            }
+        // Рисуем объекты
+        for (int i = 0; i < OBJECT_POSITIONS.length; i++) {
+            PointF pos = convertGeoToScreen(OBJECT_POSITIONS[i]);
 
-            Bitmap piece = puzzlePieces[i];
-            if (piece != null) {
-                int row = i / PUZZLE_COLS;
-                int col = i % PUZZLE_COLS;
-
-                float left = col * pieceWidth * scaleX;
-                float top = row * pieceHeight * scaleY;
-
-                Bitmap scaledPiece = Bitmap.createScaledBitmap(piece,
-                        (int)(pieceWidth * scaleX),
-                        (int)(pieceHeight * scaleY),
-                        true);
-
-                canvas.drawBitmap(scaledPiece, left, top, null);
+            if (foundObjects[i]) {
+                drawObject(canvas, i, pos);
+            } else {
+                drawMarker(canvas, pos);
             }
         }
 
-        // Рисуем пользователя поверх
-        if (userX >= 0 && userY >= 0) {
-            float drawX = animatedX * scaleX - userMarker.getWidth() / 2f;
-            float drawY = animatedY * scaleY - userMarker.getHeight() / 2f;
-            canvas.drawBitmap(userMarker, drawX, drawY, null);
+        // Рисуем маркер пользователя
+        if (userLat != -1f && userLon != -1f) {
+            PointF userPos = convertGeoToScreen(new PointF(userLat, userLon));
+            drawUserMarker(canvas, userPos);
         }
     }
 
+    private PointF convertGeoToScreen(PointF geoPoint) {
+        // Преобразуем географические координаты в экранные
+        // Границы карты в географических координатах
+        float minLon = 41.009f, maxLon = 41.013f;
+        float minLat = 57.736f, maxLat = 57.741f;
+
+        float x = mapBounds.left + (geoPoint.y - minLon) / (maxLon - minLon) * mapBounds.width();
+        float y = mapBounds.top + (maxLat - geoPoint.x) / (maxLat - minLat) * mapBounds.height();
+
+        return new PointF(x, y);
+    }
+
+    private void drawObject(Canvas canvas, int index, PointF position) {
+        float width = getWidth() * OBJECT_RELATIVE_SIZES[index];
+        float height = width * objectBitmaps[index].getHeight() / objectBitmaps[index].getWidth();
+
+        RectF dstRect = new RectF(
+                position.x - width/2,
+                position.y - height/2,
+                position.x + width/2,
+                position.y + height/2
+        );
+
+        canvas.drawBitmap(objectBitmaps[index], null, dstRect, null);
+    }
+
+    private void drawMarker(Canvas canvas, PointF position) {
+        float size = getWidth() * MARKER_RELATIVE_SIZE;
+        canvas.drawCircle(position.x, position.y, size/2, markerPaint);
+    }
+
+    private void drawUserMarker(Canvas canvas, PointF position) {
+        float size = getWidth() * USER_MARKER_RELATIVE_SIZE;
+
+        RectF dstRect = new RectF(
+                position.x - size/2,
+                position.y - size/2,
+                position.x + size/2,
+                position.y + size/2
+        );
+
+        canvas.drawBitmap(userMarker, null, dstRect, null);
+    }
+
+    public void updateUserPosition(double lat, double lon) {
+        userLat = (float)lat;
+        userLon = (float)lon;
+        invalidate();
+    }
+
+    public void setObjectFound(int index, boolean found) {
+        if (index >= 0 && index < foundObjects.length) {
+            foundObjects[index] = found;
+            invalidate();
+        }
+    }
+
+    @Override
+    protected void onDetachedFromWindow() {
+        super.onDetachedFromWindow();
+        recycleBitmaps();
+    }
+
+    private void recycleBitmaps() {
+        if (originalMap != null) {
+            originalMap.recycle();
+            originalMap = null;
+        }
+        if (scaledMap != null) {
+            scaledMap.recycle();
+            scaledMap = null;
+        }
+        for (Bitmap bitmap : objectBitmaps) {
+            if (bitmap != null) {
+                bitmap.recycle();
+            }
+        }
+        if (userMarker != null) {
+            userMarker.recycle();
+            userMarker = null;
+        }
+    }
 }
-
-
-

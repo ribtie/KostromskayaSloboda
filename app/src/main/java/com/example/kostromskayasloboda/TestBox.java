@@ -1,17 +1,14 @@
 package com.example.kostromskayasloboda;
-import android.app.Dialog;
+
+import android.graphics.Bitmap;
 import android.os.Bundle;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
-import androidx.annotation.Nullable;
 import androidx.fragment.app.DialogFragment;
-
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -19,52 +16,55 @@ import java.util.List;
 public class TestBox extends DialogFragment {
     public static Runnable onCorrectAnswerGlobal;
 
-    private int[] images;      // Ресурсы картинок вариантов
-    private String[] texts;    // Тексты вариантов
-    private int correctIndex;  // Индекс правильного варианта после перемешивания
+    private Bitmap correctImage;
+    private String correctText;
+    private Bitmap[] wrongImages = new Bitmap[2];
+    private String[] wrongTexts = new String[2];
+    private int correctIndex;
 
-    public TestBox(int correctImage, String correctText,
-                   int wrongImage1, String wrongText1,
-                   int wrongImage2, String wrongText2) {
-        // Задаем исходные варианты
-        images = new int[]{correctImage, wrongImage1, wrongImage2};
-        texts = new String[]{correctText, wrongText1, wrongText2};
+    public TestBox(Bitmap correctImage, String correctText,
+                   Bitmap wrongImage1, String wrongText1,
+                   Bitmap wrongImage2, String wrongText2) {
+        this.correctImage = correctImage;
+        this.correctText = correctText;
+        this.wrongImages[0] = wrongImage1;
+        this.wrongImages[1] = wrongImage2;
+        this.wrongTexts[0] = wrongText1;
+        this.wrongTexts[1] = wrongText2;
     }
 
-    @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.test_box_dialog, container, false);
-        LinearLayout containerAnswers = view.findViewById(R.id.container_answers);
+        View view = inflater.inflate(R.layout.dialog_test, container, false);
+        ViewGroup containerAnswers = view.findViewById(R.id.container_answers);
 
-        // Перемешаем индексы вариантов случайно
-        List<Integer> order = Arrays.asList(0, 1, 2);
-        Collections.shuffle(order);
+        List<AnswerOption> options = Arrays.asList(
+                new AnswerOption(correctImage, correctText, true),
+                new AnswerOption(wrongImages[0], wrongTexts[0], false),
+                new AnswerOption(wrongImages[1], wrongTexts[1], false)
+        );
+        Collections.shuffle(options);
 
-        for (int i = 0; i < order.size(); i++) {
-            int idx = order.get(i);
-            View item = inflater.inflate(R.layout.item_test, containerAnswers, false);
-            ImageView imageView = item.findViewById(R.id.image_answer);
-            TextView textView = item.findViewById(R.id.text_answer);
+        for (int i = 0; i < options.size(); i++) {
+            AnswerOption option = options.get(i);
+            View item = inflater.inflate(R.layout.item_test_option, containerAnswers, false);
 
-            imageView.setImageResource(images[idx]);
-            textView.setText(texts[idx]);
+            ImageView imageView = item.findViewById(R.id.option_image);
+            TextView textView = item.findViewById(R.id.option_text);
 
-            // Запомнили, какой индекс правильного варианта после перемешивания
-            if (idx == 0) { // 0 — это правильный вариант в исходных данных
-                correctIndex = i;
-            }
+            imageView.setImageBitmap(option.image);
+            textView.setText(option.text);
 
-            final int finalI = i;
+            if (option.isCorrect) correctIndex = i;
+
+            final int position = i;
             item.setOnClickListener(v -> {
-                if (finalI == correctIndex) {
-                    Toast.makeText(getContext(), "✅ Верно!", Toast.LENGTH_SHORT).show();
-                    if (onCorrectAnswerGlobal != null) {
-                        onCorrectAnswerGlobal.run();
-                    }
+                if (position == correctIndex) {
+                    Toast.makeText(getContext(), "Верно!", Toast.LENGTH_SHORT).show();
+                    if (onCorrectAnswerGlobal != null) onCorrectAnswerGlobal.run();
                     dismiss();
                 } else {
-                    Toast.makeText(getContext(), "❌ Неверно", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getContext(), "Неверно! Попробуйте еще", Toast.LENGTH_SHORT).show();
                 }
             });
 
@@ -74,15 +74,15 @@ public class TestBox extends DialogFragment {
         return view;
     }
 
-    @Override
-    public void onStart() {
-        super.onStart();
-        Dialog dialog = getDialog();
-        if (dialog != null) {
-            // Устанавливаем размеры диалога и позицию по центру
-            dialog.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+    private static class AnswerOption {
+        Bitmap image;
+        String text;
+        boolean isCorrect;
 
-            dialog.getWindow().setGravity(Gravity.CENTER);
+        AnswerOption(Bitmap image, String text, boolean isCorrect) {
+            this.image = image;
+            this.text = text;
+            this.isCorrect = isCorrect;
         }
     }
 }

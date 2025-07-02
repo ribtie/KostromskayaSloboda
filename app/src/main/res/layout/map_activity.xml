@@ -19,8 +19,8 @@
         <com.example.kostromskayasloboda.MapView
             android:id="@+id/mapView"
             android:layout_width="match_parent"
-            android:layout_height="438dp"
-            android:layout_marginTop="30dp"/>
+            android:layout_height="538dp"
+            android:layout_marginTop="3dp"/>
 
         <ProgressBar
             android:id="@+id/progressBar"
