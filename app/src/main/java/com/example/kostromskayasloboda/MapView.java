@@ -460,10 +460,10 @@ public class MapView extends View {
 
     private float[] gpsToPixel(double lat, double lon) {
         // границы карты узнать!!!! ,
-        double latTop = 57.776203;
-        double lonLeft =   40.888835;
-        double latBottom = 57.774043;
-        double lonRight = 40.894864;
+        double latTop = 57.777417;
+        double lonLeft =   40.886435;
+        double latBottom = 57.772285;
+        double lonRight = 40.89563;
 
         int imgWidth = mapBitmap.getWidth();
         int imgHeight = mapBitmap.getHeight();
