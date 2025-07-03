@@ -1,26 +1,49 @@
 <!-- layout/item_answer.xml -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="0dp"
+    android:layout_width="match_parent"
     android:layout_weight="1"
     android:layout_height="wrap_content"
-    android:orientation="vertical"
+    android:orientation="horizontal"
     android:gravity="center"
     android:textAlignment="center"
-    style="@style/BackgroundBlocks">
+    android:layout_margin="10dp">
+
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_gravity="start"
+        android:orientation="vertical"
+        android:layout_weight="1"
+        >
+
+        <TextView
+            android:id="@+id/text_answer"
+            style="@style/BlackTextBlocksWithoutBackground"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/noto_serif_semibold"
+            android:gravity="center"
+            android:textSize="18sp" />
+
+        <TextView
+            android:id="@+id/text_desc"
+            style="@style/DarkGreenTextBlockWithoutBackground"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/noto_serif_semibold"
+            android:gravity="start"
+            android:textSize="13sp" />
+
+
+    </LinearLayout>
 
     <ImageView
         android:id="@+id/image_answer"
-        android:layout_width="100dp"
+        android:layout_width="120dp"
         android:layout_height="100dp"
-        android:scaleType="centerCrop" />
-
-    <TextView
-        android:id="@+id/text_answer"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        style="@style/WhiteTextBlocksWithoutBackground"
-        android:gravity="center"
-        android:textSize="14sp"
-        android:paddingTop="8dp" />
+        android:scaleType="centerCrop"
+        android:background="@drawable/roundedx2_background"
+        android:clipToOutline="true" />
 
 </LinearLayout>

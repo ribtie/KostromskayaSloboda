@@ -1,23 +1,23 @@
 <resources>
     <style name="TextBlocks">
         <item name="android:background">@drawable/rounded_background</item>
-        <item name="android:textColor">#FFFFFF</item>
+        <item name="android:textColor">#0C7600</item>
         <item name="android:padding">5dp</item>
         <item name="android:fontFamily">@font/montserrat_bold</item>
         <item name="android:gravity">center</item>
 
     </style>
 
-    <style name="WhiteTextBlocksWithoutBackground">
-        <item name="android:textColor">#FFFFFF</item>
+    <style name="BlackTextBlocksWithoutBackground">
+        <item name="android:textColor">#063201</item>
         <item name="android:padding">5dp</item>
-        <item name="android:fontFamily">@font/montserrat_bold</item>
+        <item name="android:fontFamily">@font/noto_serif_semibold</item>
         <item name="android:textSize">20sp</item>
     </style>
-    <style name="OrangeTextBlocksWithoutBackground">
-        <item name="android:textColor">#DB651F</item>
+    <style name="DarkGreenTextBlockWithoutBackground">
+        <item name="android:textColor">#095B00</item>
         <item name="android:padding">5dp</item>
-        <item name="android:fontFamily">@font/montserrat_bold</item>
+        <item name="android:fontFamily">@font/noto_serif_semibold</item>
         <item name="android:textSize">20sp</item>
     </style>
 

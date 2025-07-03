@@ -2,8 +2,7 @@
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
 android:layout_width="match_parent"
 android:layout_height="match_parent"
-android:paddingTop="20dp"
-android:background="#ADDFA8">
+android:background="#FFFFFF">
 
 <LinearLayout
     android:layout_width="match_parent"
@@ -33,6 +32,7 @@ android:background="#ADDFA8">
             style="@style/TextBlocks"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:fontFamily="@font/noto_serif_semibold"
             android:text="Найди пропущенные дома и выбери правильный вариант!"
             android:textSize="20sp"
             android:layout_marginTop="20dp">
@@ -45,6 +45,8 @@ android:background="#ADDFA8">
         android:layout_height="wrap_content"
         android:layout_weight="10"
         android:orientation="vertical"
+        android:paddingRight="5dp"
+        android:paddingLeft="5dp"
         android:layout_marginTop="20dp">
         <LinearLayout
             android:layout_width="match_parent"
@@ -63,23 +65,25 @@ android:background="#ADDFA8">
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Внимательно осмотри территорию музея"
+                    android:fontFamily="@font/montserrat_bold"
                     android:textSize="18sp"
-                    style="@style/WhiteTextBlocksWithoutBackground"/>
+                    style="@style/BlackTextBlocksWithoutBackground"/>
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textSize="16sp"
                     android:text="Обрати внимание на архитектурные особенности каждого дома. Ищи различия и сходства."
-                    style="@style/OrangeTextBlocksWithoutBackground"/>
+                    style="@style/DarkGreenTextBlockWithoutBackground"/>
             </LinearLayout>
 
             <ImageView
-                android:layout_width="100dp"
-                android:layout_height="100dp"
+                android:layout_width="120dp"
+                android:layout_height="match_parent"
                 android:src="@drawable/domload"
                 android:layout_marginStart="10dp"
                 android:scaleType="centerCrop"
+                android:background="@drawable/rounded_background"
                 android:clipToOutline="true" />
         </LinearLayout>
         <LinearLayout
@@ -100,23 +104,25 @@ android:background="#ADDFA8">
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Используй карту музея"
+                    android:fontFamily="@font/montserrat_bold"
                     android:textSize="18sp"
-                    style="@style/WhiteTextBlocksWithoutBackground"/>
+                    style="@style/BlackTextBlocksWithoutBackground"/>
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textSize="16sp"
                     android:text="На карте отмечены все дома. Сравни их расположение с тем, что видишь вокруг."
-                    style="@style/OrangeTextBlocksWithoutBackground"/>
+                    style="@style/DarkGreenTextBlockWithoutBackground"/>
             </LinearLayout>
 
             <ImageView
-                android:layout_width="100dp"
+                android:layout_width="120dp"
                 android:layout_height="100dp"
-                android:src="@drawable/museum_map"
+                android:src="@drawable/map_logo"
                 android:layout_marginStart="10dp"
                 android:scaleType="centerCrop"
+                android:background="@drawable/rounded_background"
                 android:clipToOutline="true" />
         </LinearLayout>
         <LinearLayout
@@ -137,22 +143,24 @@ android:background="#ADDFA8">
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Не торопись"
+                    android:fontFamily="@font/montserrat_bold"
                     android:textSize="18sp"
-                    style="@style/WhiteTextBlocksWithoutBackground"/>
+                    style="@style/BlackTextBlocksWithoutBackground"/>
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textSize="16sp"
                     android:text="У тебя есть время подумать. Не спеши с выбором, чтобы не допустить ошибку."
-                    style="@style/OrangeTextBlocksWithoutBackground"/>
+                    style="@style/DarkGreenTextBlockWithoutBackground"/>
             </LinearLayout>
 
             <ImageView
-                android:layout_width="100dp"
+                android:layout_width="120dp"
                 android:layout_height="100dp"
                 android:src="@drawable/domload2"
                 android:layout_marginStart="10dp"
+                android:background="@drawable/rounded_background"
                 android:scaleType="centerCrop"
                 android:clipToOutline="true" />
         </LinearLayout>

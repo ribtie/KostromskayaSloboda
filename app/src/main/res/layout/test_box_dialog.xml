@@ -2,6 +2,15 @@
     android:id="@+id/container_answers"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="horizontal"
-    android:background="#ADDFA8"
-    style="@style/BackgroundBlocks" />
+    android:orientation="vertical"
+    android:padding="10dp"
+    style="@style/BackgroundBlocks" >
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:textSize="24sp"
+        style="@style/TextBlocks"
+        android:text="Выбери ответ"/>
+
+</LinearLayout>

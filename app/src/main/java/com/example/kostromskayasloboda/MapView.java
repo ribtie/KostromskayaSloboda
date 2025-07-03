@@ -4,6 +4,7 @@ import android.content.Context;
 import android.graphics.*;
 import android.util.AttributeSet;
 import android.util.Log;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -23,7 +24,8 @@ public class MapView extends View {
     private float animatedX = -1;
     private float animatedY = -1;
 
-    private static final int PUZZLE_ROWS = 5;
+    private Bitmap backgroundMapBitmap;
+    private static final int PUZZLE_ROWS = 15;
     private static final int PUZZLE_COLS = 10;
     private Bitmap[] puzzlePieces = new Bitmap[PUZZLE_ROWS * PUZZLE_COLS];
 
@@ -32,15 +34,36 @@ public class MapView extends View {
     private float[][] coordinates = {{57.774723F, 40.889324F},{57.775179F, 40.893296F}}; /// массив координат точек, чтобы он сам определял области где ставить пропуски
 
     private int[] missingPieceIndex = new int[coordinates.length];;
-
-    public static Boolean showMissingPiece = false; // флаг, появился ли пропущенный кусок
     private int pieceWidth, pieceHeight;
-
+    private static float offsetX = 0;
+    private float offsetY = 0;
+    private float lastTouchX;
+    private float lastTouchY;
     TextView count;
-
-    ProgressBar progressBar;
-
     String currentCount;
+
+    private float scaleFactor = 1;
+    private final float minScale = 1;
+    private final float maxScale = 1.5f;
+
+    public void zoomIn() {
+        scaleFactor = Math.min(scaleFactor + 0.2f, maxScale);
+        float scaledHeight = getHeight()*scaleFactor;
+        float minOffsetY = (getHeight() - scaledHeight)/3f; // максимально вниз
+        float maxOffsetY = Math.abs((getHeight() - scaledHeight)/3f);   // максимально вверх
+        offsetY = Math.min(Math.max(offsetY, minOffsetY), maxOffsetY);
+        invalidate();
+    }
+
+    public void zoomOut() {
+        scaleFactor = Math.max(scaleFactor - 0.2f, minScale);
+        float scaledWidth = getWidth()*scaleFactor;
+        float minOffsetX = (getWidth() - scaledWidth)/ 3f; // максимально вправо
+        float maxOffsetX = Math.abs((getWidth() - scaledWidth)/ 3f);                        // максимально влево
+        offsetX = Math.min(Math.max(offsetX, minOffsetX), maxOffsetX);
+        invalidate();
+
+    }
 
     public void makeMiss(float[][] coordinates, int[] missingPieceIndex) {
         for (int i = 0; i < coordinates.length; i++) {
@@ -48,11 +71,9 @@ public class MapView extends View {
             float newX = xy[0];
             float newY = xy[1];
             int index = getUserPuzzleIndex(newX, newY);
-            Log.e("Макароны", "Invalid puzzle index for coordinates: " + Arrays.toString(coordinates[i]) + " -> index: " + index + " длина " + coordinates.length);
 
             if (index < 0 || index >= PUZZLE_ROWS * PUZZLE_COLS) {
-                Log.e("MapView", "Invalid puzzle index for coordinates: " + Arrays.toString(coordinates[i]) + " -> index: " + index);
-                missingPieceIndex[i] = -1;
+                 missingPieceIndex[i] = -1;
             } else {
                 missingPieceIndex[i] = index;
             }
@@ -68,6 +89,7 @@ public class MapView extends View {
         userMarker = BitmapFactory.decodeResource(getResources(), R.drawable.user_marker);
         pieceWidth = mapBitmap.getWidth() / PUZZLE_COLS;
         pieceHeight = mapBitmap.getHeight() / PUZZLE_ROWS;
+        backgroundMapBitmap = mapBitmap;
 
         for(int i=0; i<booleanPiecesShow.length; i++) {
             booleanPiecesShow[i]=true;
@@ -81,15 +103,10 @@ public class MapView extends View {
         splitMapIntoPieces();
     }
 
-    public void initUI(TextView count, ProgressBar progressBar) {
+    public void initUI(TextView count) {
 
         this.count = count;
-        this.progressBar = progressBar;
         currentCount = count.getText().toString();
-        if (progressBar != null) {
-            progressBar.setMax(missingPieceIndex.length);
-        }
-
         if (count != null) {
             String currentCount = count.getText().toString();
             if (!currentCount.isEmpty()) {
@@ -105,7 +122,6 @@ public class MapView extends View {
                 int currentCountInt = countNullAndNotNullInMassive(missingPieceIndex)[0];
                 String newText = currentCountInt + currentCount.substring(1, currentCount.length());
                 count.setText(newText);
-                progressBar.setProgress(currentCountInt, true);
             }
         }
 
@@ -245,13 +261,14 @@ public class MapView extends View {
                         changeCurrentCount();
                         Toast.makeText(activity, "Молодец! Ты открыл новый кусочек карты ✅", Toast.LENGTH_SHORT).show();
                     };
-                    TestBox testBox = new TestBox(
-                            R.drawable.chasovna, "Скасская церковь", /// верный ответ
-                            R.drawable.domgar, "Дом Лохиной", /// неверные ответы V
-                            R.drawable.dom, "Кузница"
-                    );
-                    testBox.show(activity.getSupportFragmentManager(), "Диалог");
 
+                TestBox testBox = new TestBox(
+                        R.drawable.spas, "Спасская церковь", "Спасская церковь – памятник архитектуры Костромской области. ",/// верный ответ
+                        R.drawable.loh, "Дом Лохиной", "Дом Лохиной – памятник архитектуры Костромской области.", /// неверные ответы V
+                        R.drawable.kolod, "Говорящий колодец","Говорящий колодец – памятник архитектуры Костромской области.",
+                        R.drawable.podkazka, "Обрати внимание на резные окна"
+                );
+                testBox.show(activity.getSupportFragmentManager(), "Диалог");
                 }
             }
         }
@@ -277,9 +294,82 @@ public class MapView extends View {
         return gpsToPixel(latLon[0], latLon[1]);
     }
 
+    private void clampOffsets() {
+        float scaledWidth = getWidth() * scaleFactor;
+        float scaledHeight = getHeight() * scaleFactor;
+
+
+        Log.d("СНЮСИНКИ", scaledWidth + " scale " + getWidth() + " width" + mapBitmap.getWidth() + " mapBitmap" + " " + (getWidth() - scaledWidth));
+
+        // Горизонтальное ограничение
+        if (scaledWidth <= getWidth()) {
+            // Если карта уже меньше ширины экрана — центрируем по горизонтали
+            offsetX = (getWidth() - scaledWidth) / 2;
+        } else {
+            // Иначе ограничиваем смещение, чтобы карта не "улетала" за левый и правый края
+            float minOffsetX = (getWidth() - scaledWidth)/ 3f; // максимально вправо
+            float maxOffsetX = Math.abs((getWidth() - scaledWidth)/ 3f);                        // максимально влево
+            offsetX = Math.min(Math.max(offsetX, minOffsetX), maxOffsetX);
+        }
+
+        // Вертикальное ограничение
+        if (scaledHeight <= getHeight()) {
+            // Центрируем по вертикали, если карта меньше по высоте
+            offsetY = (getHeight() - scaledHeight) / 2;
+        } else {
+            // Ограничиваем смещение по вертикали
+            float minOffsetY = (getHeight() - scaledHeight)/3f; // максимально вниз
+            float maxOffsetY = Math.abs((getHeight() - scaledHeight)/3f);   // максимально вверх
+            offsetY = Math.min(Math.max(offsetY, minOffsetY), maxOffsetY);
+        }
+    }
+
+
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+        switch (event.getAction()) {
+            case MotionEvent.ACTION_DOWN:
+                lastTouchX = event.getX();
+                lastTouchY = event.getY();
+                return true;
+
+            case MotionEvent.ACTION_MOVE:
+                float dx = event.getX() - lastTouchX;
+                float dy = event.getY() - lastTouchY;
+
+                offsetX += dx;
+                offsetY += dy;
+
+                clampOffsets();  // <<< ВАЖНО: добавляем после движения
+
+                lastTouchX = event.getX();
+                lastTouchY = event.getY();
+
+                invalidate();
+                break;
+
+
+            case MotionEvent.ACTION_UP:
+            case MotionEvent.ACTION_CANCEL:
+                return true;
+        }
+        return super.onTouchEvent(event);
+    }
+
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
+        canvas.save();
+        canvas.translate(offsetX, offsetY);
+        canvas.scale(scaleFactor, scaleFactor, getWidth() / 2f - offsetX, getHeight() / 2f - offsetY);
+
+        float bgScaleX = (float) getWidth() / backgroundMapBitmap.getWidth();
+        float bgScaleY = (float) getHeight() / backgroundMapBitmap.getHeight();
+        Bitmap scaledBackground = Bitmap.createScaledBitmap(backgroundMapBitmap,
+                (int)(backgroundMapBitmap.getWidth() * bgScaleX),
+                (int)(backgroundMapBitmap.getHeight() * bgScaleY),
+                true);
+        canvas.drawBitmap(scaledBackground, 0, 0, null);
 
         float scaleX = (float) getWidth() / mapBitmap.getWidth();
         float scaleY = (float) getHeight() / mapBitmap.getHeight();
@@ -314,6 +404,8 @@ public class MapView extends View {
             float drawY = animatedY * scaleY - userMarker.getHeight() / 2f;
             canvas.drawBitmap(userMarker, drawX, drawY, null);
         }
+
+        canvas.restore();
     }
 
 }

@@ -1,57 +1,66 @@
-<?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:paddingTop="20dp"
-    android:background="#ADDFA8">
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical">
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Карта Музея"
-            style="@style/TextBlocks"
-            android:textSize="20sp"
-            android:gravity="center"/>
+    android:background="#FFFFFF">
 
-        <com.example.kostromskayasloboda.MapView
-            android:id="@+id/mapView"
-            android:layout_width="match_parent"
-            android:layout_height="438dp"
-            android:layout_marginTop="30dp"/>
-
-        <ProgressBar
-            android:id="@+id/progressBar"
-            style="@android:style/Widget.ProgressBar.Horizontal"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="30dp"
-            android:max="100"
-            android:progress="0"
-            android:progressTint="#DB651F"
-            android:backgroundTint="#52000000"/>
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Найдено"
-            style="@style/OrangeTextBlocksWithoutBackground"
-            android:gravity="center"/>
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal">
-        <TextView
+        <!-- Карта -->
+        <FrameLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:id="@+id/count"
-            android:text="0 из 9"
-            style="@style/OrangeTextBlocksWithoutBackground"
-            android:gravity="center"/>
+            >
 
-        </LinearLayout>
-    </LinearLayout>
+            <com.example.kostromskayasloboda.MapView
+
+                android:id="@+id/mapView"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@drawable/museum_map"/>
+
+            <!-- Кнопки зума -->
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_gravity="center|end">
+
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_gravity="bottom|end"
+                    android:layout_margin="16dp">
+                    <ImageView
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
+                        android:src="@drawable/icon"/>
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:id="@+id/count"
+                        android:text="0/9"
+                        style="@style/BlackTextBlocksWithoutBackground"
+                        android:gravity="center"/>
+                    <ImageButton
+                        android:id="@+id/zoomInBtn"
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
+                        android:background="#00000001"
+                        android:src="@drawable/plus"
+                        android:contentDescription="Zoom In"
+                        />
+
+                    <ImageButton
+                        android:id="@+id/zoomOutBtn"
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
+                        android:background="#00000001"
+                        android:src="@drawable/minus"
+                        android:contentDescription="Zoom Out"
+                        />
+                </LinearLayout>
+            </LinearLayout>
+        </FrameLayout>
 
 
 </FrameLayout>

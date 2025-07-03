@@ -21,14 +21,25 @@ public class TestBox extends DialogFragment {
 
     private int[] images;      // Ресурсы картинок вариантов
     private String[] texts;    // Тексты вариантов
+
+    private String[] decs;    // Тексты вариантов
     private int correctIndex;  // Индекс правильного варианта после перемешивания
 
-    public TestBox(int correctImage, String correctText,
-                   int wrongImage1, String wrongText1,
-                   int wrongImage2, String wrongText2) {
+
+    private int podskazkiImage;
+
+    private String podskazkaText;
+    public TestBox(int correctImage, String correctText, String correctDesc,
+                   int wrongImage1, String wrongText1, String wrongDesc1,
+                   int wrongImage2, String wrongText2, String wrongDesc2,
+                   int podskazkiImage, String podskazkaText) {
         // Задаем исходные варианты
         images = new int[]{correctImage, wrongImage1, wrongImage2};
         texts = new String[]{correctText, wrongText1, wrongText2};
+        decs = new String[]{correctDesc, wrongDesc1, wrongDesc2};
+        this.podskazkiImage = podskazkiImage;
+        this.podskazkaText = podskazkaText;
+
     }
 
     @Nullable
@@ -46,10 +57,10 @@ public class TestBox extends DialogFragment {
             View item = inflater.inflate(R.layout.item_test, containerAnswers, false);
             ImageView imageView = item.findViewById(R.id.image_answer);
             TextView textView = item.findViewById(R.id.text_answer);
-
+            TextView textView2 = item.findViewById(R.id.text_desc);
             imageView.setImageResource(images[idx]);
             textView.setText(texts[idx]);
-
+            textView2.setText(decs[idx]);
             // Запомнили, какой индекс правильного варианта после перемешивания
             if (idx == 0) { // 0 — это правильный вариант в исходных данных
                 correctIndex = i;
@@ -62,9 +73,12 @@ public class TestBox extends DialogFragment {
                     if (onCorrectAnswerGlobal != null) {
                         onCorrectAnswerGlobal.run();
                     }
+                    ObjectInfoDialog right = new ObjectInfoDialog(images[0],texts[0],decs[0],"Верно!","Отлично");
+                    right.show(this.getParentFragmentManager(), "Верный диалог");
                     dismiss();
                 } else {
-                    Toast.makeText(getContext(), "❌ Неверно", Toast.LENGTH_SHORT).show();
+                    ObjectInfoDialog right = new ObjectInfoDialog(podskazkiImage,"Подсказка",podskazkaText,"Попробуй еще раз!","Выбрать другой");
+                    right.show(this.getParentFragmentManager(), "Неверный диалог диалог");
                 }
             });
 

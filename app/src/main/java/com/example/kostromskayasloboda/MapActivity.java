@@ -6,6 +6,9 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
+import android.widget.Button;
+import android.widget.ImageButton;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -21,7 +24,12 @@ public class MapActivity extends AppCompatActivity {
         setContentView(R.layout.map_activity);
         mapView = findViewById(R.id.mapView);
         mapView.setActivity(this);
-        mapView.initUI(findViewById(R.id.count),findViewById(R.id.progressBar));
+        ImageButton zoomInBtn = findViewById(R.id.zoomInBtn);
+        ImageButton zoomOutBtn = findViewById(R.id.zoomOutBtn);
+        TextView count = findViewById(R.id.count);
+        mapView.initUI(count);
+        zoomInBtn.setOnClickListener(v -> mapView.zoomIn());
+        zoomOutBtn.setOnClickListener(v -> mapView.zoomOut());
         locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
 
         if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION)
