@@ -1,6 +1,7 @@
 package com.example.kostromskayasloboda;
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.*;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -31,7 +32,7 @@ public class MapView extends View {
 
     private static Boolean[] booleanPiecesShow = new Boolean[PUZZLE_ROWS * PUZZLE_COLS];
 
-    private float[][] coordinates = {{57.774723F, 40.889324F},{57.775179F, 40.893296F}}; /// массив координат точек, чтобы он сам определял области где ставить пропуски
+    private float[][] coordinates = {{57.774723F, 40.889324F}}; /// массив координат точек, чтобы он сам определял области где ставить пропуски
 
     private int[] missingPieceIndex = new int[coordinates.length];;
     private int pieceWidth, pieceHeight;
@@ -89,7 +90,7 @@ public class MapView extends View {
         userMarker = BitmapFactory.decodeResource(getResources(), R.drawable.user_marker);
         pieceWidth = mapBitmap.getWidth() / PUZZLE_COLS;
         pieceHeight = mapBitmap.getHeight() / PUZZLE_ROWS;
-        backgroundMapBitmap = mapBitmap;
+        backgroundMapBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.museum_map_podlozhka);
 
         for(int i=0; i<booleanPiecesShow.length; i++) {
             booleanPiecesShow[i]=true;
@@ -115,6 +116,12 @@ public class MapView extends View {
             }
         }
     }
+
+    public void endGame() {
+        Intent endGame = new Intent(activity, EndGame.class);
+        activity.startActivity(endGame);
+    }
+
     private void changeCurrentCount() {
         if (count != null) {
             currentCount = count.getText().toString();
@@ -123,6 +130,8 @@ public class MapView extends View {
                 String newText = currentCountInt + currentCount.substring(1, currentCount.length());
                 count.setText(newText);
             }
+
+            if(countNullAndNotNullInMassive(missingPieceIndex)[1]==0) endGame();
         }
 
     }

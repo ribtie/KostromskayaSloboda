@@ -22,10 +22,10 @@ public class ObjectInfoDialog extends DialogFragment {
     private int image;      // Ресурсы картинок вариантов
     private String text;    // Тексты вариантов
 
-    private String tech_var;
+    private String tech_var="";
     private String decs;    // Тексты вариантов
 
-    private String buttonTech;
+    private String buttonTech="";
 
     public ObjectInfoDialog(int correctImage, String correctText, String correctDesc, String tech, String button) {
         // Задаем исходные варианты

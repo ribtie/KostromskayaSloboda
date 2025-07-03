@@ -6,6 +6,7 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.TextView;
@@ -41,6 +42,10 @@ public class MapActivity extends AppCompatActivity {
         }
     }
 
+    public void infoButton(View v) {
+        InfoBox infoBox = new InfoBox();
+        infoBox.show(this.getSupportFragmentManager(), "Инфо");
+    }
     private void startGPS() {
         if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
 

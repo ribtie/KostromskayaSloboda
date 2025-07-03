@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+<ImageView
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:scaleType="fitXY"
+    android:src="@drawable/gramota"/>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:paddingTop="170dp">
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            style="@style/BlackTextBlocksWithoutBackground"
+            android:layout_marginTop="20dp"
+            android:textSize="20dp"
+            android:layout_gravity="start"
+            android:gravity="center"
+            android:text="награжается"/>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            style="@style/TextBlocks"
+            android:layout_marginTop="50dp"
+            android:textSize="26dp"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:text=""
+            android:id="@+id/name"/>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            style="@style/BlackTextBlocksWithoutBackground"
+            android:layout_marginTop="30dp"
+            android:textSize="20dp"
+            android:layout_gravity="start"
+            android:gravity="center"
+            android:paddingLeft="100dp"
+            android:paddingRight="100dp"
+            android:text="за успешное прохождение игры"/>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            style="@style/BlackTextBlocksWithoutBackground"
+            android:textSize="20dp"
+            android:layout_gravity="start"
+            android:gravity="center"
+            android:text="Костромская слобода"/>
+
+
+    </LinearLayout>
+<LinearLayout
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:layout_gravity="end|bottom">
+    <androidx.appcompat.widget.AppCompatButton
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/download"
+        android:text="Скачать грамоту"
+        android:layout_marginLeft="20dp"
+        android:layout_marginRight="20dp"
+        style="@style/GameButtonStyle"
+        android:onClick="download"/>
+    <androidx.appcompat.widget.AppCompatButton
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="20dp"
+        android:id="@+id/backIn"
+        android:text="Вернуться в главное меню"
+        style="@style/GameButtonStyle"
+        android:onClick="backToMainMenu"/>
+</LinearLayout>
+
+
+
+</FrameLayout>

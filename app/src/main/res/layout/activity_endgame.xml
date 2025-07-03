@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:gravity="center"
+    android:padding="24dp">
+
+    <TextView
+        android:id="@+id/congratsText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="24sp"
+        style="@style/TextBlocks"
+        android:gravity="center"
+        android:layout_marginTop="10dp"
+        android:text="Молодец!" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="20sp"
+        style="@style/DarkGreenTextBlockWithoutBackground"
+        android:gravity="center"
+        android:layout_marginTop="10dp"
+        android:text="Ты нашел все объекты на карте!" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="20sp"
+        android:layout_marginTop="10dp"
+        style="@style/DarkGreenTextBlockWithoutBackground"
+        android:gravity="center"
+        android:text="Напиши своё имя и получи приз! "/>
+
+
+    <EditText
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        style="@style/DarkGreenTextBlockWithoutBackground"
+        android:layout_marginTop="10dp"
+        android:textSize="20sp"
+        android:id="@+id/nameInput"/>
+
+
+
+
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/CongratButton"
+        android:onClick="onClickGramota"
+        android:layout_marginTop="10dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Получить награду"
+        android:padding="10dp"
+        style="@style/GameButtonStyle"/>
+
+</LinearLayout>

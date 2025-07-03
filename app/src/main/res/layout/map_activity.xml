@@ -30,9 +30,12 @@
                     android:orientation="vertical"
                     android:layout_gravity="bottom|end"
                     android:layout_margin="16dp">
-                    <ImageView
+                    <ImageButton
                         android:layout_width="48dp"
                         android:layout_height="48dp"
+                        android:scaleType="centerCrop"
+                        android:background="#00000001"
+                        android:onClick="infoButton"
                         android:src="@drawable/icon"/>
                     <TextView
                         android:layout_width="match_parent"
