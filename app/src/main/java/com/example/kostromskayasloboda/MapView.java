@@ -46,6 +46,7 @@ public class MapView extends View {
     private float scaleFactor = 1;
     private final float minScale = 1;
     private final float maxScale = 1.5f;
+    private float userRotation = 0f; // угол поворота в градусах
 
     public void zoomIn() {
         scaleFactor = Math.min(scaleFactor + 0.2f, maxScale);
@@ -209,8 +210,9 @@ public class MapView extends View {
             final float endY = newY;
             final long duration = 300;
             final long startTime = System.currentTimeMillis();
+            userRotation = (float) Math.toDegrees(Math.atan2(endY - startY, endX - startX)) - 90f;
 
-            post(new Runnable() {
+        post(new Runnable() {
                 @Override
                 public void run() {
                     long elapsed = System.currentTimeMillis() - startTime;
@@ -407,12 +409,22 @@ public class MapView extends View {
             }
         }
 
-        // Рисуем пользователя поверх
         if (userX >= 0 && userY >= 0) {
-            float drawX = animatedX * scaleX - userMarker.getWidth() / 2f;
-            float drawY = animatedY * scaleY - userMarker.getHeight() / 2f;
-            canvas.drawBitmap(userMarker, drawX, drawY, null);
+            float drawX = animatedX * scaleX;
+            float drawY = animatedY * scaleY;
+
+            canvas.save();
+            canvas.translate(drawX, drawY);
+            canvas.rotate(userRotation); // вращаем
+            canvas.drawBitmap(
+                    userMarker,
+                    -userMarker.getWidth() / 2f,
+                    -userMarker.getHeight() / 2f,
+                    null
+            );
+            canvas.restore();
         }
+
 
         canvas.restore();
     }
