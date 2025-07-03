@@ -32,7 +32,8 @@ public class MapView extends View {
 
     private static Boolean[] booleanPiecesShow = new Boolean[PUZZLE_ROWS * PUZZLE_COLS];
 
-    private float[][] coordinates = {{57.774723F, 40.889324F}}; /// массив координат точек, чтобы он сам определял области где ставить пропуски
+    /// спас чапыг chas loh lip ilya mel kolod
+    private float[][] coordinates = {{57.774723F, 40.889324F},{57.775092F, 40.89061F},{57.77479F, 40.891921F},{57.775083F, 40.892619F},{57.775193F, 40.893743F},{57.775908F, 40.891404F},{57.773393F, 40.891761F},{57.776145F, 40.890866F}}; /// массив координат точек, чтобы он сам определял области где ставить пропуски
 
     private int[] missingPieceIndex = new int[coordinates.length];;
     private int pieceWidth, pieceHeight;
@@ -259,7 +260,7 @@ public class MapView extends View {
         int index = getUserPuzzleIndex(userX, userY); // если придумать как сделать универсальным, наебка в том что в тесте разные ответы нужны
         if (contains(missingPieceIndex, index)) {
             if (!booleanPiecesShow[index]) { /// дом который ищем, координаты, отдельные методы индекс - смотри значение в массиве
-                float[] schoolXy = gpsToPixel(57.774723, 40.889324);
+                float[] schoolXy = gpsToPixel(57.774723, 40.889324); //spas
                 float newX = schoolXy[0];
                 float newY = schoolXy[1];
                 if (Math.abs(newX - userX) <= 100 && Math.abs(newY - userY) <= 100) {
@@ -274,14 +275,185 @@ public class MapView extends View {
                     };
 
                 TestBox testBox = new TestBox(
-                        R.drawable.spas, "Спасская церковь", "Спасская церковь – памятник архитектуры Костромской области. ",/// верный ответ
-                        R.drawable.loh, "Дом Лохиной", "Дом Лохиной – памятник архитектуры Костромской области.", /// неверные ответы V
-                        R.drawable.kolod, "Говорящий колодец","Говорящий колодец – памятник архитектуры Костромской области.",
+                        R.drawable.spas, "Спасская церковь", "В храме сохранились подлинные резные клиросы, лавки и, частично, иконостас, солея.",/// верный ответ
+                        R.drawable.loh, "Дом Лоховой", "Памятник перевезен в музей и восстановлен в 1972 г.", /// неверные ответы V
+                        R.drawable.kolod, "Говорящий колодец","Говорящий колодец – интерактивная программа в музее",
                         R.drawable.podkazka, "Обрати внимание на резные окна"
                 );
                 testBox.show(activity.getSupportFragmentManager(), "Диалог");
                 }
             }
+            /// lip ilya mel kolod
+          //,{},{},{},{},{57.775908F, 40.891404F},{57.776145F, 40.890866F}}; /// массив координат точек, чтобы он сам определял области где ставить пропуски
+            if (!booleanPiecesShow[index]) { /// дом который ищем, координаты, отдельные методы индекс - смотри значение в массиве
+                float[] schoolXy = gpsToPixel(57.775092F, 40.89061F); //chap
+                float newX = schoolXy[0];
+                float newY = schoolXy[1];
+                if (Math.abs(newX - userX) <= 100 && Math.abs(newY - userY) <= 100) {
+                    // перерисовать с новым кусочком
+                    TestBox.onCorrectAnswerGlobal = () -> {
+                        MapView.booleanPiecesShow[index] = true;
+                        MapView.deleteContains(missingPieceIndex,index);
+                        splitMapIntoPieces();
+                        invalidate();
+                        changeCurrentCount();
+                        Toast.makeText(activity, "Молодец! Ты открыл новый кусочек карты ✅", Toast.LENGTH_SHORT).show();
+                    };
+
+                    TestBox testBox = new TestBox(
+                            R.drawable.chap, "Дом Чапыгиной", "Земляные полы, лавки, русская печь, соломенная кровля.  ",/// верный ответ
+                            R.drawable.loh, "Дом Лоховой", "Двухрядная поволжская постройка «на два коня»", /// неверные ответы V
+                            R.drawable.kolod, "Говорящий колодец","Говорящий колодец – интерактивная программа музея",
+                            R.drawable.podkazka, "Обрати внимание на резные окна"
+                    );
+                    testBox.show(activity.getSupportFragmentManager(), "Диалог");
+                }
+            }
+            if (!booleanPiecesShow[index]) { /// дом который ищем, координаты, отдельные методы индекс - смотри значение в массиве
+                float[] schoolXy = gpsToPixel(57.77479F, 40.891921F); //chas
+                float newX = schoolXy[0];
+                float newY = schoolXy[1];
+                if (Math.abs(newX - userX) <= 100 && Math.abs(newY - userY) <= 100) {
+                    // перерисовать с новым кусочком
+                    TestBox.onCorrectAnswerGlobal = () -> {
+                        MapView.booleanPiecesShow[index] = true;
+                        MapView.deleteContains(missingPieceIndex,index);
+                        splitMapIntoPieces();
+                        invalidate();
+                        changeCurrentCount();
+                        Toast.makeText(activity, "Молодец! Ты открыл новый кусочек карты ✅", Toast.LENGTH_SHORT).show();
+                    };
+
+                    TestBox testBox = new TestBox(
+                            R.drawable.chasov, "Часовня Казанской иконы", "Освящена в честь Казанской иконы.  ",/// верный ответ
+                            R.drawable.spas, "Спасская церковь", "Древняя деревянная церковь клетского типа.", /// неверные ответы V
+                            R.drawable.lipat, "Дом Липатова","Двухэтажный дом-брус с черным двором, баней и резьбой ",
+                            R.drawable.podkazka, "Обрати внимание на резные окна"
+                    );
+                    testBox.show(activity.getSupportFragmentManager(), "Диалог");
+                }
+            }
+            if (!booleanPiecesShow[index]) { /// дом который ищем, координаты, отдельные методы индекс - смотри значение в массиве
+                float[] schoolXy = gpsToPixel(57.775083F, 40.892619F); //лох
+                float newX = schoolXy[0];
+                float newY = schoolXy[1];
+                if (Math.abs(newX - userX) <= 100 && Math.abs(newY - userY) <= 100) {
+                    // перерисовать с новым кусочком
+                    TestBox.onCorrectAnswerGlobal = () -> {
+                        MapView.booleanPiecesShow[index] = true;
+                        MapView.deleteContains(missingPieceIndex,index);
+                        splitMapIntoPieces();
+                        invalidate();
+                        changeCurrentCount();
+                        Toast.makeText(activity, "Молодец! Ты открыл новый кусочек карты ✅", Toast.LENGTH_SHORT).show();
+                    };
+
+                    TestBox testBox = new TestBox(
+                            R.drawable.loh, "Дом Лоховой", "Двухрядная поволжская постройка «на два коня»",/// верный ответ
+                            R.drawable.spas, "Спасская церковь", "Древняя деревянная церковь клетского типа.", /// неверные ответы V
+                            R.drawable.lipat, "Дом Липатова","Двухэтажный дом-брус с черным двором, баней и резьбой ",
+                            R.drawable.podkazka, "Обрати внимание на крышу"
+                    );
+                    testBox.show(activity.getSupportFragmentManager(), "Диалог");
+                }
+            }
+            if (!booleanPiecesShow[index]) { /// дом который ищем, координаты, отдельные методы индекс - смотри значение в массиве
+                float[] schoolXy = gpsToPixel(57.775193F, 40.893743F); //дlip
+                float newX = schoolXy[0];
+                float newY = schoolXy[1];
+                if (Math.abs(newX - userX) <= 100 && Math.abs(newY - userY) <= 100) {
+                    // перерисовать с новым кусочком
+                    TestBox.onCorrectAnswerGlobal = () -> {
+                        MapView.booleanPiecesShow[index] = true;
+                        MapView.deleteContains(missingPieceIndex,index);
+                        splitMapIntoPieces();
+                        invalidate();
+                        changeCurrentCount();
+                        Toast.makeText(activity, "Молодец! Ты открыл новый кусочек карты ✅", Toast.LENGTH_SHORT).show();
+                    };
+
+                    TestBox testBox = new TestBox(
+                            R.drawable.lipat, "Дом Липатова","Двухэтажный дом-брус с черным двором, баней и резьбой ",
+                            R.drawable.loh, "Дом Лоховой", "Двухрядная поволжская постройка «на два коня»",/// верный ответ
+                            R.drawable.kolod, "Говорящий колодец", "Интерактивная программа музея", /// неверные ответы V
+                            R.drawable.podkazka, "Обрати внимание на крышу"
+                    );
+                    testBox.show(activity.getSupportFragmentManager(), "Диалог");
+                }
+            }
+            if (!booleanPiecesShow[index]) { /// дом который ищем, координаты, отдельные методы индекс - смотри значение в массиве
+                float[] schoolXy = gpsToPixel(57.775908F, 40.891404F); //ilya
+                float newX = schoolXy[0];
+                float newY = schoolXy[1];
+                if (Math.abs(newX - userX) <= 100 && Math.abs(newY - userY) <= 100) {
+                    // перерисовать с новым кусочком
+                    TestBox.onCorrectAnswerGlobal = () -> {
+                        MapView.booleanPiecesShow[index] = true;
+                        MapView.deleteContains(missingPieceIndex,index);
+                        splitMapIntoPieces();
+                        invalidate();
+                        changeCurrentCount();
+                        Toast.makeText(activity, "Молодец! Ты открыл новый кусочек карты ✅", Toast.LENGTH_SHORT).show();
+                    };
+
+                    TestBox testBox = new TestBox(
+                            R.drawable.ilya, "Ильинская церковь", "Двухъярусный деревянный храм с Покровской церковью",
+                            R.drawable.lipat, "Дом Липатова","Двухэтажный дом-брус с черным двором, баней и резьбой ",
+                            R.drawable.loh, "Дом Лоховой", "Двухрядная поволжская постройка «на два коня»",/// верный ответ
+                   R.drawable.podkazka, "Обрати внимание на крышу"
+                    );
+                    testBox.show(activity.getSupportFragmentManager(), "Диалог");
+                }
+            }
+            if (!booleanPiecesShow[index]) { /// дом который ищем, координаты, отдельные методы индекс - смотри значение в массиве
+                float[] schoolXy = gpsToPixel(57.773393, 40.891761); //ilya
+                float newX = schoolXy[0];
+                float newY = schoolXy[1];
+                if (Math.abs(newX - userX) <= 100 && Math.abs(newY - userY) <= 100) {
+                    // перерисовать с новым кусочком
+                    TestBox.onCorrectAnswerGlobal = () -> {
+                        MapView.booleanPiecesShow[index] = true;
+                        MapView.deleteContains(missingPieceIndex,index);
+                        splitMapIntoPieces();
+                        invalidate();
+                        changeCurrentCount();
+                        Toast.makeText(activity, "Молодец! Ты открыл новый кусочек карты ✅", Toast.LENGTH_SHORT).show();
+                    };
+
+                    TestBox testBox = new TestBox(
+                            R.drawable.mel,"Мельница", "Трехъярусная мельница с вращающейся «шапкой» и крыльями.",
+                            R.drawable.ilya, "Ильинская церковь", "Двухъярусный деревянный храм с Покровской церковью",
+                            R.drawable.lipat, "Дом Липатова","Двухэтажный дом-брус с черным двором, баней и резьбой ",
+                  R.drawable.podkazka, "Обрати внимание на крышу"
+                    );
+                    testBox.show(activity.getSupportFragmentManager(), "Диалог");
+                }
+            }
+            if (!booleanPiecesShow[index]) { /// дом который ищем, координаты, отдельные методы индекс - смотри значение в массиве
+                float[] schoolXy = gpsToPixel(57.776145F, 40.890866F); //kolod
+                float newX = schoolXy[0];
+                float newY = schoolXy[1];
+                if (Math.abs(newX - userX) <= 100 && Math.abs(newY - userY) <= 100) {
+                    // перерисовать с новым кусочком
+                    TestBox.onCorrectAnswerGlobal = () -> {
+                        MapView.booleanPiecesShow[index] = true;
+                        MapView.deleteContains(missingPieceIndex,index);
+                        splitMapIntoPieces();
+                        invalidate();
+                        changeCurrentCount();
+                        Toast.makeText(activity, "Молодец! Ты открыл новый кусочек карты ✅", Toast.LENGTH_SHORT).show();
+                    };
+
+                    TestBox testBox = new TestBox(
+                            R.drawable.kolod, "Говорящий колодец", "Интерактивная программа музея",
+                            R.drawable.mel,"Мельница", "Трехъярусная мельница с вращающейся «шапкой» и крыльями.",
+                            R.drawable.ilya, "Ильинская церковь", "Двухъярусный деревянный храм с Покровской церковью",
+                           R.drawable.podkazka, "Обрати внимание на крышу"
+                    );
+                    testBox.show(activity.getSupportFragmentManager(), "Диалог");
+                }
+            }
+
         }
         changeCurrentCount();
     }
